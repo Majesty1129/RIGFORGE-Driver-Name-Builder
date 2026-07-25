@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Admin Builder v10</title>
+<title>RIGFORGE Admin Builder v11</title>
 <style>
 @font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
 :root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5b5b}
@@ -33,21 +33,28 @@ input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);bor
 .note{color:var(--muted);font-size:13px;line-height:1.5}
 .recent-row{display:grid;grid-template-columns:1.2fr 1fr .8fr .7fr auto auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
 .status-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#202733;border:1px solid var(--line);font-size:12px;font-weight:800}
+.status-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:800}
+.status-saved{color:#d7e1ef}.status-ordered{color:#60a5fa}.status-processing{color:#f59e0b}.status-completed{color:#38d27c}.status-shipped{color:#c084fc}.status-cancelled{color:#ff8a8a}
 .item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:12px}
 .item-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .item-title{font-size:19px;font-weight:900}
 .preview{background:#080b0f;border:1px solid var(--line);border-radius:12px;min-height:240px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:18px;margin-top:12px}
 .preview svg{max-width:100%;height:auto;background:#232931}
 .item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-@media(max-width:700px){.recent-row{grid-template-columns:1fr}.recent-row .muted-hide{display:none}}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tab.active{background:var(--accent);color:#090909}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.shipping-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media(max-width:700px){.recent-row{grid-template-columns:1fr}.recent-row .muted-hide{display:none}.shipping-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
  <div>
-  <h1>RIGFORGE Admin Builder v10</h1>
-  <div class="sub">견적번호 조회, 최근 견적, SVG 생성, 삭제를 한 화면에서 처리합니다.</div>
+  <h1>RIGFORGE Admin Builder v11</h1>
+  <div class="sub">주문 상태, 발송정보, Path SVG, 휴지통을 한 화면에서 관리합니다.</div>
  </div>
  <a class="btn ghost" href="index.html">고객 빌더</a>
 </header>
@@ -58,9 +65,21 @@ input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);bor
   <button type="button" class="primary" id="searchBtn">견적 조회</button>
   <button type="button" class="ghost" id="recentBtn">최근 견적 불러오기</button>
  </div>
- <div id="status" class="status">견적번호를 입력하거나 최근 견적에서 선택하세요.</div>
+ <div id="status" class="status">견적번호를 입력하거나 목록에서 선택하세요.</div>
+ <div class="tabs">
+  <button type="button" class="ghost tab active" id="activeTabBtn">활성 견적</button>
+  <button type="button" class="ghost tab" id="trashTabBtn">휴지통</button>
+ </div>
+ <div class="filter-row" id="statusFilters">
+  <button type="button" class="ghost" data-filter="all">전체</button>
+  <button type="button" class="ghost" data-filter="saved">견적 저장</button>
+  <button type="button" class="ghost" data-filter="ordered">주문확인</button>
+  <button type="button" class="ghost" data-filter="processing">제작중</button>
+  <button type="button" class="ghost" data-filter="completed">제작완료</button>
+  <button type="button" class="ghost" data-filter="shipped">발송완료</button>
+ </div>
  <div id="recentPanel" class="hidden" style="margin-top:14px">
-  <div class="note">최근 저장된 견적</div>
+  <div class="note" id="listTitle">최근 저장된 견적</div>
   <div id="recentList"></div>
  </div>
 </section>
@@ -72,10 +91,34 @@ input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);bor
    <div class="meta" id="meta"></div>
   </section>
   <section class="panel">
-   <h2>관리</h2>
-   <div class="note">조회된 견적의 옵션별 SVG를 다운로드할 수 있습니다. 삭제는 Soft Delete 방식으로 처리됩니다.</div>
-   <div style="margin-top:16px">
-    <button type="button" class="danger" id="deleteCurrentBtn">현재 견적 삭제</button>
+   <h2>주문 상태 및 발송 관리</h2>
+   <div class="note">주문확인 → 제작중 → 제작완료 → 발송완료 순서로 관리하세요.</div>
+   <div class="status-controls">
+    <select id="statusSelect">
+     <option value="saved">견적 저장</option>
+     <option value="ordered">주문확인</option>
+     <option value="processing">제작중</option>
+     <option value="completed">제작완료</option>
+     <option value="shipped">발송완료</option>
+     <option value="cancelled">취소</option>
+    </select>
+    <button type="button" class="primary" id="updateStatusBtn">상태 변경</button>
+    <button type="button" class="danger" id="deleteCurrentBtn">휴지통으로 이동</button>
+   </div>
+   <div class="shipping-grid">
+    <select id="carrierSelect">
+     <option value="">택배사 선택</option>
+     <option value="우체국택배">우체국택배</option>
+     <option value="CJ대한통운">CJ대한통운</option>
+     <option value="한진택배">한진택배</option>
+     <option value="롯데택배">롯데택배</option>
+     <option value="로젠택배">로젠택배</option>
+     <option value="기타">기타</option>
+    </select>
+    <input id="trackingInput" placeholder="송장번호">
+   </div>
+   <div style="margin-top:10px">
+    <button type="button" class="ghost" id="saveShippingBtn">발송정보 저장</button>
    </div>
   </section>
  </div>
@@ -92,12 +135,25 @@ input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);bor
 const SUPABASE_URL='https://hbabjwicpilqoqbfdqlz.supabase.co';
 const SUPABASE_KEY='sb_publishable_GW3eX7jxoaLWrCVB6Acsbg_QwE5jG2R';
 const GAP=10,ROW_GAP=15;
+const FONT_OUTLINES={"unitsPerEm":1000,"glyphs":{"A":{"d":"M663 566C625 650 562 691 468 691C371 691 310 650 272 566L30 30C25 19 22 10 19 0H228C229 8 232 16 235 24L270 105H670L706 23C709 16 712 9 714 0H918C915 10 912 19 907 30ZM336 254 439 496C446 512 457 517 469 517C482 517 494 511 500 496L604 254Z","advance":939,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"B":{"d":"M96 676C66 676 51 662 51 634V43C51 14 66 0 96 0H589C669 0 721 26 756 67C785 101 803 145 803 193C803 255 778 314 728 340C772 369 796 419 796 477C796 534 776 579 745 612C706 654 650 676 579 676ZM232 278H546C573 278 587 271 598 259C607 249 613 236 613 222C613 208 608 195 599 184C589 172 573 164 546 164H246C236 164 232 169 232 179ZM232 399V491C232 501 236 506 246 506H547C572 506 587 498 597 486C604 477 609 465 609 453C609 441 604 429 597 420C587 407 572 399 547 399Z","advance":823,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"C":{"d":"M748 178H394C330 178 287 198 258 230C232 258 216 296 216 337C216 382 235 424 266 453C295 480 333 497 394 497H748V676H394C285 676 204 642 144 587C77 525 35 436 35 338C35 249 68 169 122 110C184 42 273 0 394 0H748Z","advance":783,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"D":{"d":"M94 676C65 676 50 662 50 634V43C50 14 65 0 94 0H459C580 0 669 42 731 110C785 169 818 249 818 338C818 436 776 525 709 587C649 642 568 676 459 676ZM459 497C520 497 558 480 587 453C618 424 637 382 637 337C637 296 621 258 595 230C566 198 523 178 459 178H244C235 178 231 182 231 192V483C231 493 235 497 244 497Z","advance":855,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"E":{"d":"M145 676C81 676 49 646 49 585V94C49 31 81 0 144 0H760V173H246C235 173 230 179 230 191V273H757V403H230V480C230 491 235 497 246 497H760V676Z","advance":795,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"F":{"d":"M171 676C90 676 49 636 49 552V0H230V226H757V394H230V467C230 487 239 497 258 497H760V676Z","advance":790,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"G":{"d":"M717 0C746 0 760 14 760 43V370H580V189C580 179 576 175 567 175H394C330 175 287 198 258 230C232 258 216 296 216 337C216 382 235 424 266 453C295 480 333 497 394 497H759V676H394C285 676 204 642 144 587C77 525 35 436 35 338C35 249 68 169 122 110C184 42 273 0 394 0Z","advance":807,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"H":{"d":"M636 676V431H233V676H51V0H233V261H636V0H818V676Z","advance":870,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"I":{"d":"M51 676V0H233V676Z","advance":284,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"J":{"d":"M397 0C579 0 664 99 664 265V676H481V257C481 202 457 173 397 173H20V0Z","advance":709,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"K":{"d":"M50 676V0H233V299L557 28C569 18 579 9 587 0H857C849 9 840 17 831 25L432 348C427 352 426 354 426 359C426 364 428 367 432 370L804 658C810 663 818 670 822 676H569C562 667 551 656 541 648L233 399V676Z","advance":871,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"L":{"d":"M757 0V173H288C241 173 228 188 228 237V676H46V220C46 73 100 0 266 0Z","advance":777,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"M":{"d":"M568 -14C616 -14 661 5 682 48L887 473C889 478 895 481 900 481C908 481 916 475 916 463V0H1090V495C1090 571 1067 618 1027 650C997 674 957 691 909 691C823 691 773 640 738 565L585 233C581 223 576 220 568 220C560 220 555 223 551 233L398 565C363 640 313 691 227 691C179 691 139 674 109 650C69 618 46 571 46 495V0H220V463C220 475 228 481 236 481C241 481 247 478 249 473L454 48C475 5 520 -14 568 -14Z","advance":1138,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"N":{"d":"M889 676H712V239C712 227 706 221 698 221C692 221 686 222 681 229L351 624C309 674 269 691 205 691C114 691 48 648 48 533V0H226V458C226 470 234 477 243 477C249 477 254 474 259 468L630 39C662 2 705 -14 762 -14C828 -14 889 29 889 131Z","advance":939,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"O":{"d":"M536 0C657 0 746 42 808 110C862 169 895 249 895 338C895 436 853 525 786 587C726 642 645 676 536 676H394C285 676 204 642 144 587C77 525 35 436 35 338C35 249 68 169 122 110C184 42 273 0 394 0ZM536 497C597 497 635 480 664 453C695 424 714 382 714 337C714 296 698 258 672 230C643 198 600 178 536 178H394C330 178 287 198 258 230C232 258 216 296 216 337C216 382 235 424 266 453C295 480 333 497 394 497Z","advance":932,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"P":{"d":"M94 676C65 676 50 662 50 634V0H231V170H542C646 170 715 206 761 261C798 306 820 363 820 423C820 491 792 556 745 603C700 648 638 676 542 676ZM231 336V483C231 493 236 497 244 497H546C585 497 608 485 623 467C634 453 640 436 640 416C640 397 634 381 624 368C609 348 586 336 546 336Z","advance":843,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"Q":{"d":"M545 18C559 18 573 19 586 20C655 -60 660 -67 663 -72H907C903 -64 897 -54 889 -46L767 89C852 147 894 251 894 347C894 442 853 529 788 589C730 643 651 676 545 676H384C278 676 199 643 141 589C76 529 35 442 35 347C35 260 67 183 120 125C180 59 267 18 384 18ZM549 497C607 497 643 481 670 455C700 428 718 388 718 345C718 306 703 270 678 243C650 212 609 193 549 193H379C319 193 278 212 250 243C225 270 210 306 210 345C210 388 228 428 258 455C285 481 321 497 379 497Z","advance":917,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"R":{"d":"M231 240H546C599 240 620 223 620 180V45C620 30 621 15 623 0H806C804 19 803 35 803 64V199C803 276 783 312 738 339C786 374 802 425 802 479C802 530 781 577 748 612C711 651 658 676 575 676H95C65 676 50 662 50 634V0H231ZM231 394V492C231 501 236 507 246 507H551C574 507 590 500 600 489C610 479 615 465 615 451C615 438 610 426 602 416C591 403 576 394 551 394Z","advance":842,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"S":{"d":"M757 676H261C171 676 120 652 84 615C48 578 26 528 26 474C26 419 47 370 83 333C119 296 171 272 261 272H536C562 272 575 267 584 257C593 248 598 235 598 221C598 209 594 198 587 190C578 179 564 173 536 173H44V0H568C648 0 702 27 739 70C770 106 789 153 789 202C789 255 767 305 731 342C695 379 644 403 568 403H271C250 403 240 406 232 413C222 421 215 434 215 449C215 463 220 475 229 484C237 492 249 497 271 497H757Z","advance":812,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"T":{"d":"M20 676V497H317V0H499V497H795V676Z","advance":816,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"U":{"d":"M586 0C756 0 823 65 823 216V676H641V236C641 193 619 173 574 173H293C248 173 228 194 228 236V676H46V216C46 65 113 0 283 0Z","advance":869,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"V":{"d":"M274 110C312 26 375 -14 470 -14C566 -14 627 26 665 110L907 646C912 657 915 666 918 676H707C705 668 702 659 699 652L499 185C492 169 483 164 471 164C459 164 448 170 442 185L240 652C237 660 235 667 233 676H19C22 666 25 657 30 646Z","advance":939,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"W":{"d":"M628 530C639 530 646 525 650 510L747 137C774 35 836 -14 938 -14C1060 -14 1120 47 1136 136L1226 644C1228 658 1229 666 1229 676H1040C1040 670 1040 660 1038 650L961 188C958 172 951 165 937 165C925 165 917 170 913 186L812 554C787 646 736 691 628 691C519 691 465 646 437 549L334 186C330 170 322 165 310 165C296 165 288 172 286 188L215 650C214 659 213 669 213 676H22C22 666 23 657 25 644L109 137C123 51 182 -14 305 -14C409 -14 472 33 501 137L606 510C610 525 617 530 628 530Z","advance":1251,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"X":{"d":"M719 676C714 669 708 661 700 654L511 472L332 654C325 662 319 670 315 676H63C68 668 73 662 82 654L384 361L35 21C27 13 22 8 17 0H255C260 6 266 13 273 20L500 244L715 20C721 14 726 8 731 0H990C985 7 980 14 973 21L631 361L934 654C942 661 949 669 954 676Z","advance":1008,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"Y":{"d":"M330 315V0H513V303L830 653C840 664 844 669 848 676H629C627 671 621 662 612 653L443 468C439 464 435 461 429 461C423 461 419 464 415 468L245 653C236 662 231 671 229 676H6C9 669 13 664 23 653Z","advance":854,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"Z":{"d":"M340 173C332 173 328 177 328 182C328 185 330 188 334 191L699 463C729 485 739 499 746 515C753 531 757 548 757 566C757 591 746 619 726 640C706 661 678 676 627 676H44V497H473C478 497 481 493 481 489C481 487 480 484 478 483L115 228C89 210 77 201 68 191C48 167 39 141 39 117C39 90 48 65 64 44C84 18 116 0 169 0H765V173Z","advance":798,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"0":{"d":"M497 0C618 0 707 42 769 110C823 169 856 249 856 338C856 436 814 525 747 587C687 642 606 676 497 676H394C285 676 204 642 144 587C77 525 35 436 35 338C35 249 68 169 122 110C184 42 273 0 394 0ZM497 497C558 497 596 480 625 453C656 424 675 382 675 337C675 296 659 258 633 230C604 198 561 178 497 178H394C330 178 287 198 258 230C232 258 216 296 216 337C216 382 235 424 266 453C295 480 333 497 394 497Z","advance":893,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"1":{"d":"M28 676V497H139C157 497 165 488 165 469V0H345V496C345 622 304 676 178 676Z","advance":403,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"2":{"d":"M32 497H500C530 497 546 486 546 460C546 441 535 429 512 420L117 262C38 230 18 178 18 132C18 67 63 0 169 0H747V173H319C313 173 308 177 308 183C308 187 311 191 316 193L621 304C708 336 755 407 755 484C755 594 676 676 542 676H32Z","advance":778,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"3":{"d":"M41 676V497H442C449 497 453 493 453 488C453 482 450 479 443 475L326 401C299 384 285 369 285 341C285 310 298 282 351 282H487C532 282 548 259 548 228C548 197 532 173 487 173H39V0H541C679 0 757 95 757 200C757 323 685 383 581 394C576 395 574 398 574 402C574 404 575 408 578 410L688 490C721 515 739 540 739 577C739 633 701 676 626 676Z","advance":770,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"4":{"d":"M803 0V536C803 598 787 633 764 655C737 681 700 691 665 691C632 691 605 682 571 657L90 305C65 287 54 276 45 264C29 243 24 222 24 202C24 173 32 147 49 128C68 107 98 94 150 94H621V0ZM621 252H312C305 252 301 257 301 263C301 268 303 271 308 274L590 475C597 480 600 481 606 481C613 481 621 474 621 461Z","advance":851,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"5":{"d":"M39 173V0H583C669 0 725 26 761 67C791 102 807 149 807 201C807 265 782 322 736 359C701 387 654 404 581 404H258C246 404 243 408 244 419L250 485C251 493 255 497 263 497H782V676H137C94 676 70 654 68 611L53 343C51 300 75 280 114 280H562C585 280 600 275 610 265C619 256 624 243 624 227C624 211 619 198 610 189C600 179 585 173 562 173Z","advance":823,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"6":{"d":"M261 676C259 669 255 660 250 653L77 387C38 327 25 283 25 233C25 172 49 117 86 76C127 30 184 0 280 0H533C628 0 694 37 735 93C764 132 781 181 781 233C781 293 758 349 720 391C678 437 618 466 533 466H443C366 466 351 457 341 457C339 457 338 459 338 461C338 463 339 465 341 468L451 624C462 639 474 658 480 676ZM302 173C270 173 251 182 238 196C225 210 218 228 218 247C218 264 223 280 233 292C247 310 268 321 302 321H515C549 321 570 310 584 292C594 280 599 264 599 247C599 228 592 210 579 196C566 182 547 173 515 173Z","advance":798,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"7":{"d":"M536 497C550 497 554 489 554 481C554 476 553 471 548 464L240 28C233 18 229 9 225 0H453C456 8 459 15 467 26L746 436C778 483 785 510 785 536C785 572 772 604 750 629C725 658 688 676 634 676H19V497Z","advance":799,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"8":{"d":"M587 0C667 0 719 26 754 67C783 101 801 145 801 193C801 255 776 314 726 340C770 369 794 419 794 477C794 534 774 579 743 612C704 654 648 676 577 676H256C185 676 129 654 90 612C59 579 39 534 39 477C39 419 63 369 107 340C57 314 32 255 32 193C32 145 50 101 79 67C114 26 166 0 246 0ZM544 278C571 278 585 271 596 259C605 249 611 236 611 222C611 208 606 195 597 184C587 172 571 164 544 164H289C262 164 246 172 236 184C227 195 222 208 222 222C222 236 228 249 237 259C248 271 262 278 289 278ZM545 506C570 506 585 498 595 486C602 477 607 465 607 453C607 441 602 429 595 420C585 407 570 399 545 399H288C263 399 248 407 238 420C231 429 226 441 226 453C226 465 231 477 238 486C248 498 263 506 288 506Z","advance":833,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"9":{"d":"M543 0C545 7 549 16 554 23L727 289C766 349 779 393 779 443C779 504 755 559 718 600C677 646 620 676 524 676H271C176 676 110 639 69 583C40 544 23 495 23 443C23 383 46 327 84 285C126 239 186 210 271 210H361C438 210 453 219 463 219C465 219 466 217 466 215C466 213 465 211 463 208L353 52C342 37 330 18 324 0ZM502 503C534 503 553 494 566 480C579 466 586 448 586 429C586 412 581 396 571 384C557 366 536 355 502 355H289C255 355 234 366 220 384C210 396 205 412 205 429C205 448 212 466 225 480C238 494 257 503 289 503Z","advance":798,"xMin":0,"yMin":0,"xMax":0,"yMax":0},".":{"d":"M59 176V0H241V176Z","advance":300,"xMin":0,"yMin":0,"xMax":0,"yMax":0},"-":{"d":"M32 280H304V395H32Z","advance":336,"xMin":0,"yMin":0,"xMax":0,"yMax":0}," ":{"d":"","advance":403,"xMin":0,"yMin":0,"xMax":0,"yMax":0}},"kern":{}};
 const FLAG_INNER="\n<rect x=\"0\" y=\"0\" width=\"212.195312\" height=\"141.464844\" fill=\"#ffffff\"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 33.664062 43.371094 L 53.285156 13.96875 L 58.617188 17.550781 L 38.992188 46.953125 Z M 33.664062 43.371094 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 40.898438 48.234375 L 60.523438 18.832031 L 65.851562 22.414062 L 46.230469 51.816406 Z M 40.898438 48.234375 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 48.132812 53.097656 L 67.753906 23.695312 L 73.085938 27.277344 L 53.464844 56.679688 Z M 48.132812 53.097656 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 73.085938 114.1875 L 53.464844 84.78125 L 48.132812 88.367188 L 67.757812 117.769531 Z M 73.085938 114.1875 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 55.40625 103.402344 L 50.078125 106.984375 L 40.898438 93.230469 L 46.226562 89.648438 Z M 65.851562 119.050781 L 56.671875 105.296875 L 51.339844 108.878906 L 60.519531 122.632812 Z M 65.851562 119.050781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 58.617188 123.914062 L 38.992188 94.511719 L 33.664062 98.09375 L 53.285156 127.496094 Z M 58.617188 123.914062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 156.789062 103.402344 L 162.121094 106.984375 L 171.300781 93.230469 L 165.96875 89.648438 Z M 146.347656 119.050781 L 155.527344 105.296875 L 160.855469 108.878906 L 151.675781 122.632812 Z M 146.347656 119.050781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 98.539062 L 154.882812 102.121094 L 164.0625 88.367188 L 158.734375 84.78125 Z M 139.109375 114.1875 L 148.289062 100.429688 L 153.621094 104.011719 L 144.441406 117.769531 Z M 139.109375 114.1875 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 108.265625 L 169.355469 111.847656 L 178.535156 98.09375 L 173.203125 94.511719 Z M 153.582031 123.914062 L 162.761719 110.160156 L 168.089844 113.742188 L 158.910156 127.496094 Z M 153.582031 123.914062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 146.347656 22.414062 L 165.96875 51.816406 L 171.296875 48.234375 L 151.675781 18.832031 Z M 146.347656 22.414062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 33.199219 L 169.355469 29.617188 L 178.53125 43.371094 L 173.203125 46.953125 Z M 153.582031 17.550781 L 162.761719 31.304688 L 168.089844 27.722656 L 158.910156 13.96875 Z M 153.582031 17.550781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 42.925781 L 154.882812 39.34375 L 164.0625 53.097656 L 158.734375 56.679688 Z M 139.109375 27.277344 L 148.289062 41.035156 L 153.621094 37.449219 L 144.441406 23.695312 Z M 139.109375 27.277344 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(0%, 30.979919%, 60.00061%)\" fill-opacity=\"1\" d=\"M 105.621094 71.121094 C 103.050781 77.613281 96.730469 82.210938 89.339844 82.210938 C 79.671875 82.210938 71.828125 74.34375 71.828125 64.640625 C 71.828125 62.214844 72.320312 59.902344 73.175781 57.773438 C 71.464844 61.863281 70.535156 66.367188 70.535156 71.085938 C 70.535156 90.523438 86.246094 106.285156 105.613281 106.285156 C 120.265625 106.285156 132.824219 97.265625 138.054688 84.449219 C 138.925781 82.335938 139.414062 80.027344 139.414062 77.597656 C 139.414062 67.898438 131.574219 60.027344 121.90625 60.027344 C 114.515625 60.027344 108.191406 64.625 105.621094 71.121094 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(90.196228%, 0%, 7.450867%)\" fill-opacity=\"1\" d=\"M 105.578125 71.066406 C 108.152344 64.574219 114.476562 59.980469 121.867188 59.984375 C 131.535156 59.988281 139.375 67.859375 139.371094 77.5625 C 139.367188 79.988281 138.875 82.300781 138.019531 84.425781 C 139.734375 80.339844 140.664062 75.835938 140.664062 71.117188 C 140.675781 51.679688 124.972656 35.910156 105.605469 35.902344 C 90.953125 35.894531 78.390625 44.910156 73.152344 57.722656 C 72.28125 59.835938 71.789062 62.144531 71.789062 64.570312 C 71.785156 74.273438 79.621094 82.148438 89.292969 82.152344 C 96.679688 82.152344 103.007812 77.558594 105.578125 71.066406 \"/>\n";
 
 let CURRENT_ESTIMATE=null;
+let CURRENT_LIST=[];
+let CURRENT_MODE='active';
+let CURRENT_FILTER='all';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&#39;','"':'&quot;'}[c]));
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
+const statusLabel=s=>({
+ saved:'견적 저장',
+ ordered:'주문확인',
+ processing:'제작중',
+ completed:'제작완료',
+ shipped:'발송완료',
+ cancelled:'취소',
+ deleted:'삭제'
+}[s]||s);
 const optionLabel=it=>`${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`;
 
 function flagMarkup(x,y,w,h){
@@ -134,41 +190,87 @@ async function loadRecentEstimates(){
 async function softDeleteEstimate(no){
  return await rpc('soft_delete_estimate',{p_estimate_no:no});
 }
+async function updateEstimateStatus(no,status){
+ return await rpc('update_estimate_status',{p_estimate_no:no,p_status:status});
+}
+async function saveShippingInfo(no,carrier,tracking){
+ return await rpc('save_shipping_info',{p_estimate_no:no,p_carrier:carrier,p_tracking_no:tracking});
+}
+async function loadTrashEstimates(){
+ const data=await rpc('list_deleted_estimates',{p_limit:100});
+ return Array.isArray(data)?data:[];
+}
+async function restoreEstimate(no){
+ return await rpc('restore_estimate',{p_estimate_no:no});
+}
+async function permanentlyDeleteEstimate(no){
+ return await rpc('permanently_delete_estimate',{p_estimate_no:no});
+}
 
-function metrics(text,textH){
- const canvas=document.createElement('canvas');
- const ctx=canvas.getContext('2d');
- const ref=1000;
- ctx.font=`700 ${ref}px Nulshock`;
- const m=ctx.measureText(text||'H');
- const asc=Math.max(1,m.actualBoundingBoxAscent||750);
- const des=Math.max(0,m.actualBoundingBoxDescent||0);
- const ratio=(asc+des)/ref;
- const fontSize=textH/ratio;
- return {w:m.width*(fontSize/ref),h:textH,fontSize,ascent:asc*(fontSize/ref)};
+
+
+function glyphLayout(text){
+ const chars=String(text||'').toUpperCase().split('');
+ let x=0, minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+ const placed=[];
+ for(let i=0;i<chars.length;i++){
+  const ch=chars[i];
+  const g=FONT_OUTLINES.glyphs[ch]||FONT_OUTLINES.glyphs[' '];
+  if(i>0){
+   const prev=FONT_OUTLINES.glyphs[chars[i-1]]||FONT_OUTLINES.glyphs[' '];
+  }
+  placed.push({ch,g,x});
+  if(g.d){
+   minX=Math.min(minX,x+g.xMin); minY=Math.min(minY,g.yMin);
+   maxX=Math.max(maxX,x+g.xMax); maxY=Math.max(maxY,g.yMax);
+  }
+  x+=g.advance;
+ }
+ if(!isFinite(minX)){minX=0;minY=0;maxX=x;maxY=FONT_OUTLINES.unitsPerEm*0.7}
+ return {placed,minX,minY,maxX,maxY,advance:x};
+}
+
+function outlinedTextMarkup(text,textH,x,y,anchor='start',fill='#fff'){
+ const layout=glyphLayout(text);
+ const rawH=Math.max(1,layout.maxY-layout.minY);
+ const scale=textH/rawH;
+ const visualW=(layout.maxX-layout.minX)*scale;
+ let originX=x;
+ if(anchor==='middle')originX=x-visualW/2;
+ if(anchor==='end')originX=x-visualW;
+ const tx=originX-layout.minX*scale;
+ const ty=y+layout.maxY*scale;
+ const paths=layout.placed.map(p=>p.g.d?`<path d="${p.g.d}" transform="translate(${p.x} 0)"/>`:'').join('');
+ return {
+  markup:`<g fill="${fill}" transform="translate(${tx} ${ty}) scale(${scale} ${-scale})">${paths}</g>`,
+  width:visualW,
+  height:textH
+ };
 }
 
 function buildSvg(it){
- const tm=metrics(it.text,it.textH);
  const fw=Number(it.flagW),fh=Number(it.flagH),qty=Number(it.qty);
- const unitW=it.layout==='horizontal'?fw+GAP+tm.w:Math.max(fw,tm.w);
- const unitH=it.layout==='horizontal'?Math.max(fh,tm.h):fh+GAP+tm.h;
- const W=unitW;
- const H=qty*unitH+(qty-1)*ROW_GAP;
+ const temp=outlinedTextMarkup(it.text,it.textH,0,0,'start',it.color==='white'?'#fff':'#111');
+ const textW=temp.width;
+ const unitW=it.layout==='horizontal'?fw+GAP+textW:Math.max(fw,textW);
+ const unitH=it.layout==='horizontal'?Math.max(fh,it.textH):fh+GAP+it.textH;
+ const W=unitW,H=qty*unitH+(qty-1)*ROW_GAP;
  const fill=it.color==='white'?'#fff':'#111';
  let shapes='';
  for(let i=0;i<qty;i++){
   const gy=i*(unitH+ROW_GAP);
-  let fx,fy,tx,baseline,anchor;
+  let fx,fy,textX,textY,anchor;
   if(it.layout==='horizontal'){
-   fx=0;fy=gy+(unitH-fh)/2;tx=fw+GAP;baseline=gy+(unitH-tm.h)/2+tm.ascent;anchor='start';
+   fx=0;fy=gy+(unitH-fh)/2;
+   textX=fw+GAP;textY=gy+(unitH-it.textH)/2;anchor='start';
   }else{
-   fx=(unitW-fw)/2;fy=gy;tx=unitW/2;baseline=gy+fh+GAP+tm.ascent;anchor='middle';
+   fx=(unitW-fw)/2;fy=gy;
+   textX=unitW/2;textY=gy+fh+GAP;anchor='middle';
   }
   shapes+=flagMarkup(fx,fy,fw,fh);
-  shapes+=`<text x="${tx}" y="${baseline}" fill="${fill}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSize}" text-anchor="${anchor}">${esc(it.text)}</text>`;
+  shapes+=outlinedTextMarkup(it.text,it.textH,textX,textY,anchor,fill).markup;
  }
- return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><defs><style>@font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}text{font-family:Nulshock;font-weight:700}</style></defs>${shapes}</svg>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><metadata>RIGFORGE outlined production SVG - no live text</metadata>${shapes}</svg>`;
 }
 
 function downloadSvg(svg,name){
@@ -181,49 +283,53 @@ function downloadSvg(svg,name){
 }
 
 function renderRecent(rows){
- const panel=$('recentPanel');
- const list=$('recentList');
+ CURRENT_LIST=rows;
+ const panel=$('recentPanel'),list=$('recentList');
  panel.classList.remove('hidden');
- if(!rows.length){
-  list.innerHTML='<div class="note">저장된 견적이 없습니다.</div>';
+ let visible=rows;
+ if(CURRENT_MODE==='active' && CURRENT_FILTER!=='all'){
+  visible=rows.filter(r=>r.status===CURRENT_FILTER);
+ }
+ $('listTitle').textContent=CURRENT_MODE==='trash'?'삭제된 견적':'최근 저장된 견적';
+ if(!visible.length){
+  list.innerHTML='<div class="note">표시할 견적이 없습니다.</div>';
   return;
  }
- list.innerHTML=rows.map(row=>`
+ list.innerHTML=visible.map(row=>`
   <div class="recent-row">
    <div><strong class="code" style="font-size:16px">${esc(row.estimate_no)}</strong></div>
    <div>${esc(row.driver_name||'-')}</div>
    <div class="muted-hide">${money(row.total_price)}</div>
-   <div><span class="status-badge">${esc(row.status||'saved')}</span></div>
-   <button type="button" class="ghost" data-open="${esc(row.estimate_no)}">조회</button>
-   <button type="button" class="danger" data-delete="${esc(row.estimate_no)}">삭제</button>
+   <div><span class="status-badge status-${esc(row.status||'saved')}">${esc(statusLabel(row.status||'saved'))}</span></div>
+   ${CURRENT_MODE==='active'
+    ?`<button type="button" class="ghost" data-open="${esc(row.estimate_no)}">조회</button><button type="button" class="danger" data-delete="${esc(row.estimate_no)}">삭제</button>`
+    :`<button type="button" class="ghost" data-restore="${esc(row.estimate_no)}">복원</button><button type="button" class="danger" data-permanent="${esc(row.estimate_no)}">영구삭제</button>`}
   </div>`).join('');
 
- list.querySelectorAll('[data-open]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-   $('estimateInput').value=btn.dataset.open;
-   searchEstimate();
-  });
+ list.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>{
+  $('estimateInput').value=btn.dataset.open; searchEstimate();
  });
-
- list.querySelectorAll('[data-delete]').forEach(btn=>{
-  btn.addEventListener('click',async()=>{
-   const no=btn.dataset.delete;
-   if(!confirm(`정말 삭제하시겠습니까?\n\n견적번호: ${no}\n\n삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
-   btn.disabled=true;btn.textContent='삭제 중...';
-   try{
-    const ok=await softDeleteEstimate(no);
-    if(!ok)throw new Error('삭제할 견적을 찾지 못했습니다.');
-    renderRecent(await loadRecentEstimates());
-    $('result').classList.add('hidden');
-    $('status').className='status ok';
-    $('status').textContent=`${no} 견적을 삭제 처리했습니다.`;
-   }catch(e){
-    console.error(e);
-    $('status').className='status err';
-    $('status').textContent='삭제 실패: '+(e.message||e);
-    btn.disabled=false;btn.textContent='삭제';
-   }
-  });
+ list.querySelectorAll('[data-delete]').forEach(btn=>btn.onclick=async()=>{
+  const no=btn.dataset.delete;
+  if(!confirm(`견적을 휴지통으로 이동할까요?\n\n${no}`))return;
+  await softDeleteEstimate(no);
+  renderRecent(await loadRecentEstimates());
+  $('result').classList.add('hidden');
+  $('status').className='status ok';$('status').textContent=`${no} 견적을 휴지통으로 이동했습니다.`;
+ });
+ list.querySelectorAll('[data-restore]').forEach(btn=>btn.onclick=async()=>{
+  const no=btn.dataset.restore;
+  if(!confirm(`견적을 복원할까요?\n\n${no}`))return;
+  await restoreEstimate(no);
+  renderRecent(await loadTrashEstimates());
+  $('status').className='status ok';$('status').textContent=`${no} 견적을 복원했습니다.`;
+ });
+ list.querySelectorAll('[data-permanent]').forEach(btn=>btn.onclick=async()=>{
+  const no=btn.dataset.permanent;
+  if(!confirm(`정말 영구삭제할까요?\n\n${no}\n\n이 작업은 되돌릴 수 없습니다.`))return;
+  await permanentlyDeleteEstimate(no);
+  renderRecent(await loadTrashEstimates());
+  $('status').className='status ok';$('status').textContent=`${no} 견적을 영구삭제했습니다.`;
  });
 }
 
@@ -234,9 +340,12 @@ function renderEstimate(row){
   <div>견적번호</div><div class="code">${esc(row.estimate_no)}</div>
   <div>Builder</div><div>${esc(row.builder_type)} v${esc(row.builder_version)}</div>
   <div>최종금액</div><div>${money(row.total_price)}</div>
-  <div>상태</div><div>${esc(row.status)}</div>
+  <div>상태</div><div><span class="status-badge status-${esc(row.status)}">${esc(statusLabel(row.status))}</span></div>
   <div>저장시간</div><div>${new Date(row.created_at).toLocaleString('ko-KR')}</div>`;
 
+ $('statusSelect').value=row.status;
+ $('carrierSelect').value=row.carrier||'';
+ $('trackingInput').value=row.tracking_no||'';
  const items=Array.isArray(row.items)?row.items:[];
  $('items').innerHTML=items.map((it,i)=>{
   const svg=buildSvg(it);
@@ -301,6 +410,73 @@ $('recentBtn').addEventListener('click',async()=>{
   $('status').className='status err';
   $('status').textContent='최근 견적 조회 실패: '+(e.message||e);
  }
+});
+
+$('updateStatusBtn').addEventListener('click',async()=>{
+ if(!CURRENT_ESTIMATE)return;
+ const no=CURRENT_ESTIMATE.estimate_no;
+ const next=$('statusSelect').value;
+ const btn=$('updateStatusBtn');
+ btn.disabled=true;
+ btn.textContent='변경 중...';
+ try{
+  const ok=await updateEstimateStatus(no,next);
+  if(!ok)throw new Error('상태를 변경하지 못했습니다.');
+  CURRENT_ESTIMATE.status=next;
+  renderEstimate(CURRENT_ESTIMATE);
+  $('status').className='status ok';
+  $('status').textContent=`${no} 상태를 '${statusLabel(next)}'으로 변경했습니다.`;
+  if(!$('recentPanel').classList.contains('hidden')){
+   renderRecent(await loadRecentEstimates());
+  }
+ }catch(e){
+  console.error(e);
+  $('status').className='status err';
+  $('status').textContent='상태 변경 실패: '+(e.message||e);
+ }finally{
+  btn.disabled=false;
+  btn.textContent='상태 변경';
+ }
+});
+
+$('saveShippingBtn').addEventListener('click',async()=>{
+ if(!CURRENT_ESTIMATE)return;
+ const carrier=$('carrierSelect').value;
+ const tracking=$('trackingInput').value.trim();
+ if(!carrier || !tracking){
+  $('status').className='status err';
+  $('status').textContent='택배사와 송장번호를 모두 입력해 주세요.';
+  return;
+ }
+ try{
+  const ok=await saveShippingInfo(CURRENT_ESTIMATE.estimate_no,carrier,tracking);
+  if(!ok)throw new Error('발송정보 저장 실패');
+  CURRENT_ESTIMATE.carrier=carrier;
+  CURRENT_ESTIMATE.tracking_no=tracking;
+  $('status').className='status ok';
+  $('status').textContent='발송정보를 저장했습니다.';
+ }catch(e){
+  $('status').className='status err';
+  $('status').textContent='발송정보 저장 실패: '+(e.message||e);
+ }
+});
+
+$('activeTabBtn').onclick=async()=>{
+ CURRENT_MODE='active';
+ $('activeTabBtn').classList.add('active');$('trashTabBtn').classList.remove('active');
+ $('statusFilters').classList.remove('hidden');
+ renderRecent(await loadRecentEstimates());
+};
+$('trashTabBtn').onclick=async()=>{
+ CURRENT_MODE='trash';
+ $('trashTabBtn').classList.add('active');$('activeTabBtn').classList.remove('active');
+ $('statusFilters').classList.add('hidden');
+ $('result').classList.add('hidden');
+ renderRecent(await loadTrashEstimates());
+};
+document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{
+ CURRENT_FILTER=btn.dataset.filter;
+ renderRecent(CURRENT_LIST);
 });
 
 $('deleteCurrentBtn').addEventListener('click',async()=>{
