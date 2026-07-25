@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Admin Builder v11.2 FINAL</title>
+<title>RIGFORGE Admin Builder v11.3 FINAL</title>
 <style>
 @font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
 :root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5b5b}
@@ -43,7 +43,7 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
  background:#080b0f;
  border:1px solid var(--line);
  border-radius:12px;
- min-height:240px;
+ min-height:260px;
  display:flex;
  align-items:center;
  justify-content:center;
@@ -51,13 +51,20 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
  padding:18px;
  margin-top:12px
 }
-.preview svg{
+.preview-stage{
+ width:100%;
+ height:520px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+}
+.preview-stage svg{
  display:block;
- max-width:100%;
- max-height:520px;
- width:auto;
- height:auto;
- background:#232931
+ max-width:none;
+ max-height:none;
+ background:#232931;
+ transform-origin:center center;
 }
 .item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
@@ -71,7 +78,7 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
 <div class="wrap">
 <header>
  <div>
-  <h1>RIGFORGE Admin Builder v11.2 FINAL</h1>
+  <h1>RIGFORGE Admin Builder v11.3 FINAL</h1>
   <div class="sub">견적 조회, 일반 SVG 다운로드, 주문 상태, 발송정보, 휴지통을 간단하게 관리합니다.</div>
  </div>
  <a class="btn ghost" href="index.html">고객 빌더</a>
@@ -143,7 +150,7 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
  <section class="panel">
   <h2>제작 옵션</h2>
   <div class="note" style="margin-bottom:12px">
-   다운로드한 SVG는 Illustrator에서 열고 글자를 선택한 뒤 <strong>Ctrl + Shift + O</strong>로 윤곽선 처리하세요.
+   미리보기는 전체 제작 영역이 카드 안에 들어오도록 자동 축소됩니다. 다운로드한 SVG는 Illustrator에서 열고 글자를 선택한 뒤 <strong>Ctrl + Shift + O</strong>로 윤곽선 처리하세요.
   </div>
   <div id="items"></div>
  </section>
@@ -301,26 +308,34 @@ function downloadSvg(svg,name){
 }
 
 function fitPreviewSvg(container){
+ const stage=container.querySelector('.preview-stage');
  const svg=container.querySelector('svg');
- if(!svg)return;
+ if(!stage || !svg)return;
+
  const vb=(svg.getAttribute('viewBox')||'').trim().split(/\s+/).map(Number);
  if(vb.length!==4 || !vb.every(Number.isFinite))return;
- const w=vb[2],h=vb[3];
- if(w<=0 || h<=0)return;
 
- // 가로형/세로형 모두 컨테이너 안에 완전히 들어오도록 비율 유지
- svg.style.width='auto';
- svg.style.height='auto';
- svg.style.maxWidth='100%';
- svg.style.maxHeight='520px';
+ const viewW=vb[2],viewH=vb[3];
+ if(viewW<=0 || viewH<=0)return;
 
- // 지나치게 긴 세로형은 화면 높이에 맞춰 축소
- if(h>w*1.3){
-  svg.style.maxHeight='520px';
-  svg.style.maxWidth='100%';
- }
+ // SVG의 width/height 속성 때문에 브라우저가 임의 확대하지 않도록 제거
+ svg.removeAttribute('width');
+ svg.removeAttribute('height');
+
+ // 실제 미리보기 영역 크기
+ const pad=24;
+ const availW=Math.max(1,stage.clientWidth-pad);
+ const availH=Math.max(1,stage.clientHeight-pad);
+
+ // 전체 viewBox가 반드시 카드 안에 들어오도록 cover가 아닌 contain 방식 사용
+ const scale=Math.min(availW/viewW,availH/viewH);
+
+ svg.style.width=`${viewW*scale}px`;
+ svg.style.height=`${viewH*scale}px`;
+ svg.style.transform='none';
+ svg.style.overflow='visible';
+ svg.setAttribute('preserveAspectRatio','xMidYMid meet');
 }
-
 function renderRecent(rows){
  CURRENT_LIST=rows;
  const panel=$('recentPanel'),list=$('recentList');
@@ -394,7 +409,7 @@ function renderEstimate(row){
     <strong>${money(it.amount)}</strong>
    </div>
    <div class="note">이름: ${esc(it.text)} · 색상: ${String(it.color).toUpperCase()} · 글자 높이: ${it.textH}mm · 저장 폭: ${it.textW}mm</div>
-   <div class="preview" data-preview="${i}">${svg}</div>
+   <div class="preview" data-preview="${i}"><div class="preview-stage">${svg}</div></div>
    <div class="item-actions">
     <button type="button" class="primary" data-download="${i}">SVG 다운로드</button>
    </div>
@@ -402,6 +417,7 @@ function renderEstimate(row){
  }).join('');
 
  document.querySelectorAll('.preview').forEach(fitPreviewSvg);
+ requestAnimationFrame(()=>document.querySelectorAll('.preview').forEach(fitPreviewSvg));
 
  $('items').querySelectorAll('[data-download]').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -541,6 +557,10 @@ $('deleteCurrentBtn').addEventListener('click',async()=>{
  }finally{
   btn.disabled=false;btn.textContent='현재 견적 삭제';
  }
+});
+
+window.addEventListener('resize',()=>{
+ document.querySelectorAll('.preview').forEach(fitPreviewSvg);
 });
 </script>
 </body>
