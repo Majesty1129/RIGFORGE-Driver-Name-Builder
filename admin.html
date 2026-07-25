@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RIGFORGE Driver Name Admin</title>
+<style>
+@font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
+:root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5353}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+h1{margin:0;font-size:30px}.sub{color:var(--muted);margin-top:6px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
+.search{display:flex;gap:10px;flex-wrap:wrap}input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--text);font-size:17px;text-transform:uppercase}
+button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.primary{background:var(--accent);color:#090909}.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.danger{background:#422;color:#fff}
+.status{margin-top:12px;color:var(--muted)}.ok{color:var(--ok)}.err{color:var(--danger)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.meta{display:grid;grid-template-columns:150px 1fr;gap:9px 14px}.meta div:nth-child(odd){color:var(--muted)}.code{font-family:monospace;font-size:20px;color:var(--accent);font-weight:900}
+.item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:10px}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.item-title{font-size:19px;font-weight:900}.item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.preview{background:#0a0d11;border:1px solid var(--line);border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:15px}
+.preview svg{max-width:100%;height:auto;background:#232931}
+.note{color:var(--muted);font-size:13px;line-height:1.5}.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <div><h1>RIGFORGE Admin Builder</h1><div class="sub">견적번호로 Supabase 데이터를 불러와 제작 SVG를 생성합니다.</div></div>
+ <a class="btn ghost" href="index.html">고객 빌더</a>
+</header>
+
+<section class="panel">
+ <div class="search">
+  <input id="estimateInput" placeholder="DN-260725-4SJ6" maxlength="20">
+  <button class="primary" id="searchBtn">견적 조회</button>
+ </div>
+ <div id="status" class="status">Supabase의 한 줄을 직접 편집할 필요가 없습니다. 견적번호만 검색하세요.</div>
+</section>
+
+<div id="result" class="hidden">
+ <div class="grid">
+  <section class="panel">
+   <h2>견적 정보</h2>
+   <div class="meta" id="meta"></div>
+  </section>
+  <section class="panel">
+   <h2>사용 방법</h2>
+   <div class="note">
+    1. 고객이 주문 메모에 적은 견적번호를 검색합니다.<br>
+    2. 옵션과 수량을 확인합니다.<br>
+    3. 각 옵션의 ‘SVG 다운로드’를 눌러 제작 파일을 받습니다.<br>
+    4. Supabase Table Editor의 한 줄은 원본 주문 데이터이므로 직접 수정하지 않아도 됩니다.
+   </div>
+  </section>
+ </div>
+ <section class="panel">
+  <h2>제작 옵션</h2>
+  <div id="items"></div>
+ </section>
+</div>
+</div>
+<script>
+const SUPABASE_URL='https://hbabjwicpilqoqbfdqlz.supabase.co';
+const SUPABASE_KEY='sb_publishable_GW3eX7jxoaLWrCVB6Acsbg_QwE5jG2R';
+const GAP=10,ROW_GAP=15;
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+function flagMarkup(x,y,w,h){
+ return `<g transform="translate(${x} ${y}) scale(${w/212.598} ${h/141.732})">${FLAG_INNER}</g>`;
+}
+
+function optionLabel(it){return `${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`}
+function money(n){return Number(n||0).toLocaleString('ko-KR')+'원'}
+
+async function lookupEstimate(no){
+ const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_estimate_by_no`,{
+  method:'POST',
+  headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+  body:JSON.stringify({p_estimate_no:no})
+ });
+ if(!res.ok)throw new Error(await res.text());
+ const data=await res.json();
+ return Array.isArray(data)?data[0]:data;
+}
+
+function metrics(text,textH){
+ const c=document.createElement('canvas'),ctx=c.getContext('2d');
+ const ref=1000;ctx.font=`700 ${ref}px Nulshock`;
+ const m=ctx.measureText(text||'H');
+ const asc=Math.max(1,m.actualBoundingBoxAscent||750),des=Math.max(0,m.actualBoundingBoxDescent||0);
+ const ratio=(asc+des)/ref,fontSize=textH/ratio,scale=fontSize/ref;
+ return {w:m.width*scale,h:textH,fontSize,ascent:asc*scale};
+}
+
+function buildSvg(it){
+ const tm=metrics(it.text,it.textH);
+ const fw=Number(it.flagW),fh=Number(it.flagH),qty=Number(it.qty);
+ const unitW=it.layout==='horizontal'?fw+GAP+tm.w:Math.max(fw,tm.w);
+ const unitH=it.layout==='horizontal'?Math.max(fh,tm.h):fh+GAP+tm.h;
+ const W=unitW,H=qty*unitH+(qty-1)*ROW_GAP,col=it.color==='white'?'#fff':'#111';
+ let shapes='';
+ for(let i=0;i<qty;i++){
+  const gy=i*(unitH+ROW_GAP);let fx,fy,tx,baseline,anchor;
+  if(it.layout==='horizontal'){
+   fx=0;fy=gy+(unitH-fh)/2;tx=fw+GAP;baseline=gy+(unitH-tm.h)/2+tm.ascent;anchor='start';
+  }else{
+   fx=(unitW-fw)/2;fy=gy;tx=unitW/2;baseline=gy+fh+GAP+tm.ascent;anchor='middle';
+  }
+  shapes+=flagMarkup(fx,fy,fw,fh);
+  shapes+=`<text x="${tx}" y="${baseline}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSize}" text-anchor="${anchor}">${esc(it.text)}</text>`;
+ }
+ const metadata=esc(JSON.stringify({estimateItem:it,generatedBy:'RIGFORGE Admin v9.0'}));
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><metadata>${metadata}</metadata><defs><style>@font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}text{font-family:Nulshock;font-weight:700}</style></defs>${shapes}</svg>`;
+}
+
+function downloadSvg(svg,name){
+ const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+
+function render(row){
+ $('result').classList.remove('hidden');
+ $('meta').innerHTML=`
+  <div>견적번호</div><div class="code">${esc(row.estimate_no)}</div>
+  <div>Builder</div><div>${esc(row.builder_type)} v${esc(row.builder_version)}</div>
+  <div>최종금액</div><div>${money(row.total_price)}</div>
+  <div>상태</div><div>${esc(row.status)}</div>
+  <div>저장시간</div><div>${new Date(row.created_at).toLocaleString('ko-KR')}</div>`;
+ const items=Array.isArray(row.items)?row.items:[];
+ $('items').innerHTML=items.map((it,i)=>{
+  const svg=buildSvg(it);
+  return `<div class="item">
+   <div class="item-head"><div class="item-title">${i+1}. ${optionLabel(it)} × ${it.qty}</div><strong>${money(it.amount)}</strong></div>
+   <div class="note">이름: ${esc(it.text)} · 색상: ${String(it.color).toUpperCase()} · 글자 높이: ${it.textH}mm · 저장 폭: ${it.textW}mm</div>
+   <div class="preview">${svg}</div>
+   <div class="item-actions"><button class="primary" data-download="${i}">SVG 다운로드</button></div>
+  </div>`;
+ }).join('');
+ $('items').querySelectorAll('[data-download]').forEach(btn=>btn.onclick=()=>{
+  const i=Number(btn.dataset.download),it=items[i];
+  downloadSvg(buildSvg(it),`${row.estimate_no}_${i+1}_${it.layout}_${it.size}.svg`);
+ });
+}
+
+async function search(){
+ const no=$('estimateInput').value.trim().toUpperCase();
+ if(!/^DN-\d{6}-[A-Z2-9]{4}$/.test(no)){
+  $('status').className='status err';$('status').textContent='견적번호 형식을 확인해 주세요. 예: DN-260725-4SJ6';return;
+ }
+ $('status').className='status';$('status').textContent='견적을 불러오는 중입니다...';
+ try{
+  await document.fonts.load('700 100px Nulshock');
+  const row=await lookupEstimate(no);
+  if(!row)throw new Error('해당 견적번호를 찾지 못했습니다.');
+  render(row);$('status').className='status ok';$('status').textContent='견적을 불러왔습니다.';
+ }catch(e){
+  console.error(e);$('result').classList.add('hidden');$('status').className='status err';
+  $('status').textContent='조회 실패: '+(e.message||e);
+ }
+}
+$('searchBtn').onclick=search;
+$('estimateInput').onkeydown=e=>{if(e.key==='Enter')search()};
+</script>
+</body>
+</html>
