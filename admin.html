@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Admin Builder v11.3 FINAL</title>
+<title>RIGFORGE Admin Builder v11.4 FINAL</title>
 <style>
 @font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
 :root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5b5b}
@@ -63,8 +63,9 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
  display:block;
  max-width:none;
  max-height:none;
- background:#232931;
+ background:#2a313b;
  transform-origin:center center;
+ box-shadow:0 0 0 1px rgba(255,255,255,.04);
 }
 .item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
@@ -78,7 +79,7 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
 <div class="wrap">
 <header>
  <div>
-  <h1>RIGFORGE Admin Builder v11.3 FINAL</h1>
+  <h1>RIGFORGE Admin Builder v11.4 FINAL</h1>
   <div class="sub">견적 조회, 일반 SVG 다운로드, 주문 상태, 발송정보, 휴지통을 간단하게 관리합니다.</div>
  </div>
  <a class="btn ghost" href="index.html">고객 빌더</a>
@@ -150,7 +151,7 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
  <section class="panel">
   <h2>제작 옵션</h2>
   <div class="note" style="margin-bottom:12px">
-   미리보기는 전체 제작 영역이 카드 안에 들어오도록 자동 축소됩니다. 다운로드한 SVG는 Illustrator에서 열고 글자를 선택한 뒤 <strong>Ctrl + Shift + O</strong>로 윤곽선 처리하세요.
+   미리보기는 실제 디자인의 바운딩박스를 기준으로 중앙 정렬되고, 주변에 여유 있는 회색 작업영역이 표시됩니다. 다운로드한 SVG는 Illustrator에서 열고 글자를 선택한 뒤 <strong>Ctrl + Shift + O</strong>로 윤곽선 처리하세요.
   </div>
   <div id="items"></div>
  </section>
@@ -312,31 +313,41 @@ function fitPreviewSvg(container){
  const svg=container.querySelector('svg');
  if(!stage || !svg)return;
 
- const vb=(svg.getAttribute('viewBox')||'').trim().split(/\s+/).map(Number);
- if(vb.length!==4 || !vb.every(Number.isFinite))return;
+ // 폰트가 실제로 렌더링된 뒤, 화면에 보이는 전체 디자인의 실제 bbox를 기준으로
+ // 미리보기 전용 viewBox를 다시 잡는다. 다운로드 SVG는 영향을 받지 않는다.
+ let box;
+ try{
+  box=svg.getBBox();
+ }catch(e){
+  return;
+ }
+ if(!box || !Number.isFinite(box.x) || !Number.isFinite(box.y) ||
+    !Number.isFinite(box.width) || !Number.isFinite(box.height) ||
+    box.width<=0 || box.height<=0)return;
 
- const viewW=vb[2],viewH=vb[3];
- if(viewW<=0 || viewH<=0)return;
+ // 실제 디자인 주변에 넉넉한 회색 작업영역을 만든다.
+ const padX=Math.max(box.width*0.18,12);
+ const padY=Math.max(box.height*0.18,12);
+ const viewX=box.x-padX;
+ const viewY=box.y-padY;
+ const viewW=box.width+padX*2;
+ const viewH=box.height+padY*2;
 
- // SVG의 width/height 속성 때문에 브라우저가 임의 확대하지 않도록 제거
+ svg.setAttribute('viewBox',`${viewX} ${viewY} ${viewW} ${viewH}`);
+ svg.setAttribute('preserveAspectRatio','xMidYMid meet');
  svg.removeAttribute('width');
  svg.removeAttribute('height');
 
- // 실제 미리보기 영역 크기
- const pad=24;
- const availW=Math.max(1,stage.clientWidth-pad);
- const availH=Math.max(1,stage.clientHeight-pad);
-
- // 전체 viewBox가 반드시 카드 안에 들어오도록 cover가 아닌 contain 방식 사용
+ const outerPad=24;
+ const availW=Math.max(1,stage.clientWidth-outerPad);
+ const availH=Math.max(1,stage.clientHeight-outerPad);
  const scale=Math.min(availW/viewW,availH/viewH);
 
  svg.style.width=`${viewW*scale}px`;
  svg.style.height=`${viewH*scale}px`;
  svg.style.transform='none';
  svg.style.overflow='visible';
- svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-}
-function renderRecent(rows){
+}function renderRecent(rows){
  CURRENT_LIST=rows;
  const panel=$('recentPanel'),list=$('recentList');
  panel.classList.remove('hidden');
@@ -416,8 +427,11 @@ function renderEstimate(row){
   </div>`;
  }).join('');
 
- document.querySelectorAll('.preview').forEach(fitPreviewSvg);
- requestAnimationFrame(()=>document.querySelectorAll('.preview').forEach(fitPreviewSvg));
+ document.fonts.ready.then(()=>{
+  document.querySelectorAll('.preview').forEach(fitPreviewSvg);
+  requestAnimationFrame(()=>document.querySelectorAll('.preview').forEach(fitPreviewSvg));
+  setTimeout(()=>document.querySelectorAll('.preview').forEach(fitPreviewSvg),120);
+ });
 
  $('items').querySelectorAll('[data-download]').forEach(btn=>{
   btn.addEventListener('click',()=>{
