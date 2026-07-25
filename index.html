@@ -68,7 +68,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE</div>
-  <div class="version-badge">BUILD v9.0</div>
+  <div class="version-badge">BUILD v9.1</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -153,6 +153,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
   </div>
 </div>
 
+<div id="saveModal" class="modal-backdrop"><div class="modal"><h2>견적이 저장되었습니다</h2><div class="note">아래 견적번호를 스마트스토어 필수 입력란에 입력해 주세요.</div><div id="savedQuoteNo" class="modal-code"></div><div class="summary" id="savedOrderSummary"></div><div class="modal-actions" style="margin-top:14px"><button type="button" class="btn secondary" id="copySavedQuoteBtn">견적번호 복사</button><button type="button" class="btn primary" id="goStoreBtn">스마트스토어 주문하기</button><button type="button" class="btn ghost" id="closeSaveModalBtn">닫기</button></div></div></div>
 <script>
 (()=>{
 const FLAG_INNER="\n<defs>\n<clipPath id=\"flag-clip-0\">\n<path clip-rule=\"nonzero\" d=\"M 0 0 L 212.195312 0 L 212.195312 141.464844 L 0 141.464844 Z M 0 0 \"/>\n</clipPath>\n</defs>\n<g clip-path=\"url(#flag-clip-0)\">\n<path fill-rule=\"nonzero\" fill=\"rgb(100%, 100%, 100%)\" fill-opacity=\"1\" d=\"M 0 141.464844 L 212.195312 141.464844 L 212.195312 0 L 0 0 Z M 0 141.464844 \"/>\n</g>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 33.664062 43.371094 L 53.285156 13.96875 L 58.617188 17.550781 L 38.992188 46.953125 Z M 33.664062 43.371094 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 40.898438 48.234375 L 60.523438 18.832031 L 65.851562 22.414062 L 46.230469 51.816406 Z M 40.898438 48.234375 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 48.132812 53.097656 L 67.753906 23.695312 L 73.085938 27.277344 L 53.464844 56.679688 Z M 48.132812 53.097656 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 73.085938 114.1875 L 53.464844 84.78125 L 48.132812 88.367188 L 67.757812 117.769531 Z M 73.085938 114.1875 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 55.40625 103.402344 L 50.078125 106.984375 L 40.898438 93.230469 L 46.226562 89.648438 Z M 65.851562 119.050781 L 56.671875 105.296875 L 51.339844 108.878906 L 60.519531 122.632812 Z M 65.851562 119.050781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 58.617188 123.914062 L 38.992188 94.511719 L 33.664062 98.09375 L 53.285156 127.496094 Z M 58.617188 123.914062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 156.789062 103.402344 L 162.121094 106.984375 L 171.300781 93.230469 L 165.96875 89.648438 Z M 146.347656 119.050781 L 155.527344 105.296875 L 160.855469 108.878906 L 151.675781 122.632812 Z M 146.347656 119.050781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 98.539062 L 154.882812 102.121094 L 164.0625 88.367188 L 158.734375 84.78125 Z M 139.109375 114.1875 L 148.289062 100.429688 L 153.621094 104.011719 L 144.441406 117.769531 Z M 139.109375 114.1875 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 108.265625 L 169.355469 111.847656 L 178.535156 98.09375 L 173.203125 94.511719 Z M 153.582031 123.914062 L 162.761719 110.160156 L 168.089844 113.742188 L 158.910156 127.496094 Z M 153.582031 123.914062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 146.347656 22.414062 L 165.96875 51.816406 L 171.296875 48.234375 L 151.675781 18.832031 Z M 146.347656 22.414062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 33.199219 L 169.355469 29.617188 L 178.53125 43.371094 L 173.203125 46.953125 Z M 153.582031 17.550781 L 162.761719 31.304688 L 168.089844 27.722656 L 158.910156 13.96875 Z M 153.582031 17.550781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 42.925781 L 154.882812 39.34375 L 164.0625 53.097656 L 158.734375 56.679688 Z M 139.109375 27.277344 L 148.289062 41.035156 L 153.621094 37.449219 L 144.441406 23.695312 Z M 139.109375 27.277344 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(0%, 30.979919%, 60.00061%)\" fill-opacity=\"1\" d=\"M 105.621094 71.121094 C 103.050781 77.613281 96.730469 82.210938 89.339844 82.210938 C 79.671875 82.210938 71.828125 74.34375 71.828125 64.640625 C 71.828125 62.214844 72.320312 59.902344 73.175781 57.773438 C 71.464844 61.863281 70.535156 66.367188 70.535156 71.085938 C 70.535156 90.523438 86.246094 106.285156 105.613281 106.285156 C 120.265625 106.285156 132.824219 97.265625 138.054688 84.449219 C 138.925781 82.335938 139.414062 80.027344 139.414062 77.597656 C 139.414062 67.898438 131.574219 60.027344 121.90625 60.027344 C 114.515625 60.027344 108.191406 64.625 105.621094 71.121094 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(90.196228%, 0%, 7.450867%)\" fill-opacity=\"1\" d=\"M 105.578125 71.066406 C 108.152344 64.574219 114.476562 59.980469 121.867188 59.984375 C 131.535156 59.988281 139.375 67.859375 139.371094 77.5625 C 139.367188 79.988281 138.875 82.300781 138.019531 84.425781 C 139.734375 80.339844 140.664062 75.835938 140.664062 71.117188 C 140.675781 51.679688 124.972656 35.910156 105.605469 35.902344 C 90.953125 35.894531 78.390625 44.910156 73.152344 57.722656 C 72.28125 59.835938 71.789062 62.144531 71.789062 64.570312 C 71.785156 74.273438 79.621094 82.148438 89.292969 82.152344 C 96.679688 82.152344 103.007812 77.558594 105.578125 71.066406 \"/>\n";
@@ -241,8 +242,8 @@ function setHeightRules(reset=false){
 }
 
 function currentQuoteItem(){const c=CFG[S.size],tm=textMetrics();return {id:'QI-'+Date.now()+'-'+Math.floor(Math.random()*1000),layout:S.layout,size:S.size,color:S.color,qty:S.qty,text:S.text.trim(),textH:S.textH,textW:Number(tm.w.toFixed(1)),flagW:c.fw,flagH:c.fh,unitPrice:currentUnitPrice(),regularAmount:regularPrice(),discountAmount:discountAmount(),amount:price()};}
-function saveQuoteItems(){try{localStorage.setItem('rigforgeDriverNameQuotesV90',JSON.stringify({items:S.quoteItems,lockedName:S.lockedName}))}catch(e){}}
-function loadQuoteItems(){try{const raw=localStorage.getItem('rigforgeDriverNameQuotesV90');if(raw){const p=JSON.parse(raw);S.quoteItems=p.items||[];S.lockedName=p.lockedName||'';if(S.lockedName){S.text=S.lockedName;$('nameInput').value=S.lockedName}}}catch(e){S.quoteItems=[];S.lockedName=''}}
+function saveQuoteItems(){try{localStorage.setItem('rigforgeDriverNameQuotesV91',JSON.stringify({items:S.quoteItems,lockedName:S.lockedName}))}catch(e){}}
+function loadQuoteItems(){try{const raw=localStorage.getItem('rigforgeDriverNameQuotesV91');if(raw){const p=JSON.parse(raw);S.quoteItems=p.items||[];S.lockedName=p.lockedName||'';if(S.lockedName){S.text=S.lockedName;$('nameInput').value=S.lockedName}}}catch(e){S.quoteItems=[];S.lockedName=''}}
 function recomputeItem(it,applyGlobalDiscount=currentEstimateQty()>=2){
  const unit=UNIT_PRICE[it.layout][it.size];
  const regular=unit*it.qty;
@@ -316,7 +317,7 @@ async function saveEstimateToSupabase(){
   const payload={
    estimate_no:estimateNo,
    builder_type:'driver-name',
-   builder_version:'9.0',
+   builder_version:'9.1',
    items:computedItems.map(item=>({...item,orderMeta})),
    total_price:total,
    status:'saved'
@@ -473,15 +474,43 @@ $('nameInput').oninput=e=>{
 };
 $('minus').onclick=()=>{S.qty=Math.max(baseQty(),S.qty-1);update()};$('plus').onclick=()=>{S.qty=Math.min(20,S.qty+1);update()};
 $('addQuoteBtn').onclick=()=>{if(!valid())return alert('이름과 글자 폭 제한을 확인해 주세요.');const name=S.text.trim();if(!name)return alert('이름을 입력해 주세요.');if(S.lockedName&&name!==S.lockedName)return alert(`현재 견적의 이름은 "${S.lockedName}"입니다.\n다른 이름은 새 견적으로 시작해 주세요.`);if(!S.lockedName)S.lockedName=name;S.text=S.lockedName;$('nameInput').value=S.lockedName;const same=S.quoteItems.find(x=>x.layout===S.layout&&x.size===S.size&&x.color===S.color&&x.textH===S.textH);if(same)same.qty=Math.min(20,same.qty+S.qty);else S.quoteItems.push(currentQuoteItem());S.qty=1;saveQuoteItems();update();alert('구매 옵션에 추가했습니다.');};
-$('newQuoteBtn').onclick=()=>{if(S.quoteItems.length&&!confirm('현재 견적을 모두 비우고 새 이름으로 시작할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';S.text='';$('nameInput').value='';try{localStorage.removeItem('rigforgeDriverNameQuotesV90')}catch(e){}update();$('nameInput').focus()};
+$('newQuoteBtn').onclick=()=>{if(S.quoteItems.length&&!confirm('현재 견적을 모두 비우고 새 이름으로 시작할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';S.text='';$('nameInput').value='';try{localStorage.removeItem('rigforgeDriverNameQuotesV91')}catch(e){}update();$('nameInput').focus()};
 $('saveOrderBtn').onclick=async()=>{if(S.saving)return;if(!S.quoteItems.length)return alert('먼저 구매 옵션을 추가해 주세요.');S.saving=true;$('saveOrderBtn').disabled=true;$('saveStatus').textContent='견적을 저장하고 있습니다...';try{const r=await saveEstimateToSupabase();$('saveStatus').textContent=`저장 완료: ${r.estimateNo}`;try{await navigator.clipboard.writeText(r.estimateNo)}catch(e){}showSavedModal(r)}catch(e){console.error(e);$('saveStatus').textContent='저장에 실패했습니다.';alert('견적 저장에 실패했습니다.\n'+e.message)}finally{S.saving=false;$('saveOrderBtn').disabled=false}};
-$('copySavedQuoteBtn').onclick=async()=>{const c=$('savedQuoteNo').textContent;try{await navigator.clipboard.writeText(c);alert('견적번호를 복사했습니다.')}catch(e){prompt('견적번호를 복사하세요.',c)}};
-$('goStoreBtn').onclick=()=>window.open(SMARTSTORE_URL,'_blank','noopener');$('closeSaveModalBtn').onclick=()=>$('saveModal').classList.remove('show');
+const copySavedQuoteBtn=$('copySavedQuoteBtn');
+const goStoreBtn=$('goStoreBtn');
+const closeSaveModalBtn=$('closeSaveModalBtn');
+
+copySavedQuoteBtn.addEventListener('click',async()=>{
+ const c=$('savedQuoteNo').textContent.trim();
+ try{
+  await navigator.clipboard.writeText(c);
+  const old=copySavedQuoteBtn.textContent;
+  copySavedQuoteBtn.textContent='복사 완료';
+  setTimeout(()=>copySavedQuoteBtn.textContent=old,1200);
+ }catch(e){
+  prompt('아래 견적번호를 복사해 주세요.',c);
+ }
+});
+
+goStoreBtn.addEventListener('click',()=>{
+ const opened=window.open(SMARTSTORE_URL,'_blank','noopener,noreferrer');
+ if(!opened){
+  alert('새 탭이 차단되었습니다. 브라우저의 팝업 차단을 해제한 뒤 다시 눌러 주세요.');
+ }
+});
+
+closeSaveModalBtn.addEventListener('click',()=>{
+ $('saveModal').classList.remove('show');
+});
+
+$('saveModal').addEventListener('click',e=>{
+ if(e.target===$('saveModal'))$('saveModal').classList.remove('show');
+});
 $('clearQuotesBtn').onclick=()=>{if(!S.quoteItems.length)return;if(!confirm('추가한 구매 옵션을 모두 삭제할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';saveQuoteItems();update()};
 $('minus').onclick=()=>{S.qty=Math.max(1,S.qty-1);update()};$('plus').onclick=()=>{S.qty=Math.min(20,S.qty+1);update()};
 document.fonts.load('700 20px Nulshock').then(()=>{$('fontDot').className='font-dot ok';$('fontLoadStatus').textContent='Nulshock Bold 로딩 완료';update()}).catch(()=>{$('fontDot').className='font-dot bad';$('fontLoadStatus').textContent='폰트 파일을 확인해 주세요';update()});
 loadQuoteItems();setHeightRules(true);update();renderQuoteList();
 })();
 </script>
-<div id="saveModal" class="modal-backdrop"><div class="modal"><h2>견적이 저장되었습니다</h2><div class="note">아래 견적번호를 스마트스토어 필수 입력란에 입력해 주세요.</div><div id="savedQuoteNo" class="modal-code"></div><div class="summary" id="savedOrderSummary"></div><div class="modal-actions" style="margin-top:14px"><button class="btn secondary" id="copySavedQuoteBtn">견적번호 복사</button><button class="btn primary" id="goStoreBtn">스마트스토어 주문하기</button><button class="btn ghost" id="closeSaveModalBtn">닫기</button></div></div></div></body>
+</body>
 </html>

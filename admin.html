@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Admin</title>
+<title>RIGFORGE Driver Name Admin v9.2</title>
 <style>
 @font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
 :root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5353}
@@ -22,21 +22,29 @@ button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-
 .preview{background:#0a0d11;border:1px solid var(--line);border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:15px}
 .preview svg{max-width:100%;height:auto;background:#232931}
 .note{color:var(--muted);font-size:13px;line-height:1.5}.hidden{display:none}
+.recent-row{display:grid;grid-template-columns:1.2fr 1fr .8fr auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+.recent-row button{padding:9px 12px}
+@media(max-width:700px){.recent-row{grid-template-columns:1fr}.recent-row .muted-hide{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
- <div><h1>RIGFORGE Admin Builder</h1><div class="sub">견적번호로 Supabase 데이터를 불러와 제작 SVG를 생성합니다.</div></div>
+ <div><h1>RIGFORGE Admin Builder v9.2</h1><div class="sub">견적번호로 Supabase 데이터를 불러와 제작 SVG를 생성합니다.</div></div>
  <a class="btn ghost" href="index.html">고객 빌더</a>
 </header>
 
 <section class="panel">
  <div class="search">
-  <input id="estimateInput" placeholder="DN-260725-4SJ6" maxlength="20">
+  <input id="estimateInput" placeholder="견적번호 입력 (예: DN-260725-4SJ6)" maxlength="20">
   <button class="primary" id="searchBtn">견적 조회</button>
+  <button class="ghost" id="recentBtn">최근 견적 불러오기</button>
  </div>
- <div id="status" class="status">Supabase의 한 줄을 직접 편집할 필요가 없습니다. 견적번호만 검색하세요.</div>
+ <div id="status" class="status">견적번호를 직접 입력하거나 최근 견적 목록에서 선택하세요.</div>
+ <div id="recentPanel" class="hidden" style="margin-top:14px">
+  <div class="note" style="margin-bottom:8px">최근 저장된 견적</div>
+  <div id="recentList"></div>
+ </div>
 </section>
 
 <div id="result" class="hidden">
@@ -74,15 +82,34 @@ function flagMarkup(x,y,w,h){
 function optionLabel(it){return `${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`}
 function money(n){return Number(n||0).toLocaleString('ko-KR')+'원'}
 
-async function lookupEstimate(no){
- const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_estimate_by_no`,{
+async function rpc(name,payload={}){
+ const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
   method:'POST',
-  headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-  body:JSON.stringify({p_estimate_no:no})
+  headers:{
+   apikey:SUPABASE_KEY,
+   Authorization:`Bearer ${SUPABASE_KEY}`,
+   'Content-Type':'application/json'
+  },
+  body:JSON.stringify(payload)
  });
- if(!res.ok)throw new Error(await res.text());
- const data=await res.json();
+ const text=await res.text();
+ if(!res.ok){
+  let msg=text;
+  try{
+   const j=JSON.parse(text);
+   msg=j.message||j.hint||text;
+  }catch(e){}
+  throw new Error(msg);
+ }
+ return text?JSON.parse(text):null;
+}
+async function lookupEstimate(no){
+ const data=await rpc('get_estimate_by_no',{p_estimate_no:no});
  return Array.isArray(data)?data[0]:data;
+}
+async function loadRecentEstimates(){
+ const data=await rpc('list_recent_estimates',{p_limit:30});
+ return Array.isArray(data)?data:[];
 }
 
 function metrics(text,textH){
@@ -145,6 +172,26 @@ function render(row){
  });
 }
 
+function renderRecent(rows){
+ const panel=$('recentPanel'),list=$('recentList');
+ panel.classList.remove('hidden');
+ if(!rows.length){
+  list.innerHTML='<div class="note">저장된 견적이 없습니다.</div>';
+  return;
+ }
+ list.innerHTML=rows.map(row=>`
+  <div class="recent-row">
+   <div><strong class="code" style="font-size:16px">${esc(row.estimate_no)}</strong></div>
+   <div>${esc(row.driver_name||'-')}</div>
+   <div class="muted-hide">${money(row.total_price)}</div>
+   <button class="ghost" data-open="${esc(row.estimate_no)}">조회</button>
+  </div>`).join('');
+ list.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>{
+  $('estimateInput').value=btn.dataset.open;
+  search();
+ });
+}
+
 async function search(){
  const no=$('estimateInput').value.trim().toUpperCase();
  if(!/^DN-\d{6}-[A-Z2-9]{4}$/.test(no)){
@@ -163,6 +210,20 @@ async function search(){
 }
 $('searchBtn').onclick=search;
 $('estimateInput').onkeydown=e=>{if(e.key==='Enter')search()};
+$('recentBtn').onclick=async()=>{
+ $('status').className='status';
+ $('status').textContent='최근 견적을 불러오는 중입니다...';
+ try{
+  const rows=await loadRecentEstimates();
+  renderRecent(rows);
+  $('status').className='status ok';
+  $('status').textContent=`최근 견적 ${rows.length}건을 불러왔습니다.`;
+ }catch(e){
+  console.error(e);
+  $('status').className='status err';
+  $('status').textContent='최근 견적 조회 실패: '+(e.message||e);
+ }
+};
 </script>
 </body>
 </html>
