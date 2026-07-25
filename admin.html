@@ -3,46 +3,64 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Admin v9.2</title>
+<title>RIGFORGE Admin Builder v10</title>
 <style>
 @font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
-:root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5353}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-.wrap{max-width:1180px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
-h1{margin:0;font-size:30px}.sub{color:var(--muted);margin-top:6px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
-.search{display:flex;gap:10px;flex-wrap:wrap}input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--text);font-size:17px;text-transform:uppercase}
+:root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5b5b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input,a{font:inherit}
 button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-.primary{background:var(--accent);color:#090909}.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.danger{background:#5a2020;color:#fff;border:1px solid #8d3b3b}.danger:hover{background:#762727}.status-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#202733;border:1px solid var(--line);font-size:12px;font-weight:800}.status-deleted{color:#ff7777}
-.status{margin-top:12px;color:var(--muted)}.ok{color:var(--ok)}.err{color:var(--danger)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
-.meta{display:grid;grid-template-columns:150px 1fr;gap:9px 14px}.meta div:nth-child(odd){color:var(--muted)}.code{font-family:monospace;font-size:20px;color:var(--accent);font-weight:900}
-.item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:10px}.item-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.item-title{font-size:19px;font-weight:900}.item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.preview{background:#0a0d11;border:1px solid var(--line);border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:15px}
-.preview svg{max-width:100%;height:auto;background:#232931}
-.note{color:var(--muted);font-size:13px;line-height:1.5}.hidden{display:none}
+.primary{background:var(--accent);color:#090909}
+.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.danger{background:#5a2020;color:#fff;border:1px solid #8d3b3b}
+.wrap{max-width:1200px;margin:auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+h1{margin:0;font-size:32px}
+.sub{color:var(--muted);margin-top:6px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
+.search{display:flex;gap:10px;flex-wrap:wrap}
+input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--text);font-size:17px;text-transform:uppercase}
+.status{margin-top:12px;color:var(--muted)}
+.ok{color:var(--ok)}
+.err{color:var(--danger)}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.meta{display:grid;grid-template-columns:150px 1fr;gap:9px 14px}
+.meta div:nth-child(odd){color:var(--muted)}
+.code{font-family:monospace;font-size:20px;color:var(--accent);font-weight:900}
+.note{color:var(--muted);font-size:13px;line-height:1.5}
 .recent-row{display:grid;grid-template-columns:1.2fr 1fr .8fr .7fr auto auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
-.recent-row button{padding:9px 12px}
+.status-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#202733;border:1px solid var(--line);font-size:12px;font-weight:800}
+.item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:12px}
+.item-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.item-title{font-size:19px;font-weight:900}
+.preview{background:#080b0f;border:1px solid var(--line);border-radius:12px;min-height:240px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:18px;margin-top:12px}
+.preview svg{max-width:100%;height:auto;background:#232931}
+.item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 @media(max-width:700px){.recent-row{grid-template-columns:1fr}.recent-row .muted-hide{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
- <div><h1>RIGFORGE Admin Builder v9.3.1</h1><div class="sub">견적번호로 Supabase 데이터를 불러와 제작 SVG를 생성합니다.</div></div>
+ <div>
+  <h1>RIGFORGE Admin Builder v10</h1>
+  <div class="sub">견적번호 조회, 최근 견적, SVG 생성, 삭제를 한 화면에서 처리합니다.</div>
+ </div>
  <a class="btn ghost" href="index.html">고객 빌더</a>
 </header>
 
 <section class="panel">
  <div class="search">
   <input id="estimateInput" placeholder="견적번호 입력 (예: DN-260725-4SJ6)" maxlength="20">
-  <button class="primary" id="searchBtn">견적 조회</button>
-  <button class="ghost" id="recentBtn">최근 견적 불러오기</button>
+  <button type="button" class="primary" id="searchBtn">견적 조회</button>
+  <button type="button" class="ghost" id="recentBtn">최근 견적 불러오기</button>
  </div>
- <div id="status" class="status">견적번호를 직접 입력하거나 최근 견적 목록에서 선택하세요.</div>
+ <div id="status" class="status">견적번호를 입력하거나 최근 견적에서 선택하세요.</div>
  <div id="recentPanel" class="hidden" style="margin-top:14px">
-  <div class="note" style="margin-bottom:8px">최근 저장된 견적</div>
+  <div class="note">최근 저장된 견적</div>
   <div id="recentList"></div>
  </div>
 </section>
@@ -54,54 +72,37 @@ button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-
    <div class="meta" id="meta"></div>
   </section>
   <section class="panel">
-   <h2>사용 방법</h2>
-   <div class="note">
-    1. 고객이 주문 메모에 적은 견적번호를 검색합니다.<br>
-    2. 옵션과 수량을 확인합니다.<br>
-    3. 각 옵션의 ‘SVG 다운로드’를 눌러 제작 파일을 받습니다.<br>
-    4. Supabase Table Editor의 한 줄은 원본 주문 데이터이므로 직접 수정하지 않아도 됩니다.
+   <h2>관리</h2>
+   <div class="note">조회된 견적의 옵션별 SVG를 다운로드할 수 있습니다. 삭제는 Soft Delete 방식으로 처리됩니다.</div>
+   <div style="margin-top:16px">
+    <button type="button" class="danger" id="deleteCurrentBtn">현재 견적 삭제</button>
    </div>
   </section>
  </div>
  <section class="panel">
   <h2>제작 옵션</h2>
   <div id="items"></div>
-  <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
-   <button class="danger" id="deleteCurrentBtn">현재 견적 삭제</button>
-  </div>
  </section>
 </div>
 </div>
+
 <script>
+'use strict';
+
 const SUPABASE_URL='https://hbabjwicpilqoqbfdqlz.supabase.co';
 const SUPABASE_KEY='sb_publishable_GW3eX7jxoaLWrCVB6Acsbg_QwE5jG2R';
 const GAP=10,ROW_GAP=15;
-const $=id=>document.getElementById(id);
+const FLAG_INNER="\n<rect x=\"0\" y=\"0\" width=\"212.195312\" height=\"141.464844\" fill=\"#ffffff\"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 33.664062 43.371094 L 53.285156 13.96875 L 58.617188 17.550781 L 38.992188 46.953125 Z M 33.664062 43.371094 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 40.898438 48.234375 L 60.523438 18.832031 L 65.851562 22.414062 L 46.230469 51.816406 Z M 40.898438 48.234375 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 48.132812 53.097656 L 67.753906 23.695312 L 73.085938 27.277344 L 53.464844 56.679688 Z M 48.132812 53.097656 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 73.085938 114.1875 L 53.464844 84.78125 L 48.132812 88.367188 L 67.757812 117.769531 Z M 73.085938 114.1875 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 55.40625 103.402344 L 50.078125 106.984375 L 40.898438 93.230469 L 46.226562 89.648438 Z M 65.851562 119.050781 L 56.671875 105.296875 L 51.339844 108.878906 L 60.519531 122.632812 Z M 65.851562 119.050781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 58.617188 123.914062 L 38.992188 94.511719 L 33.664062 98.09375 L 53.285156 127.496094 Z M 58.617188 123.914062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 156.789062 103.402344 L 162.121094 106.984375 L 171.300781 93.230469 L 165.96875 89.648438 Z M 146.347656 119.050781 L 155.527344 105.296875 L 160.855469 108.878906 L 151.675781 122.632812 Z M 146.347656 119.050781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 98.539062 L 154.882812 102.121094 L 164.0625 88.367188 L 158.734375 84.78125 Z M 139.109375 114.1875 L 148.289062 100.429688 L 153.621094 104.011719 L 144.441406 117.769531 Z M 139.109375 114.1875 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 108.265625 L 169.355469 111.847656 L 178.535156 98.09375 L 173.203125 94.511719 Z M 153.582031 123.914062 L 162.761719 110.160156 L 168.089844 113.742188 L 158.910156 127.496094 Z M 153.582031 123.914062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 146.347656 22.414062 L 165.96875 51.816406 L 171.296875 48.234375 L 151.675781 18.832031 Z M 146.347656 22.414062 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 33.199219 L 169.355469 29.617188 L 178.53125 43.371094 L 173.203125 46.953125 Z M 153.582031 17.550781 L 162.761719 31.304688 L 168.089844 27.722656 L 158.910156 13.96875 Z M 153.582031 17.550781 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 42.925781 L 154.882812 39.34375 L 164.0625 53.097656 L 158.734375 56.679688 Z M 139.109375 27.277344 L 148.289062 41.035156 L 153.621094 37.449219 L 144.441406 23.695312 Z M 139.109375 27.277344 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(0%, 30.979919%, 60.00061%)\" fill-opacity=\"1\" d=\"M 105.621094 71.121094 C 103.050781 77.613281 96.730469 82.210938 89.339844 82.210938 C 79.671875 82.210938 71.828125 74.34375 71.828125 64.640625 C 71.828125 62.214844 72.320312 59.902344 73.175781 57.773438 C 71.464844 61.863281 70.535156 66.367188 70.535156 71.085938 C 70.535156 90.523438 86.246094 106.285156 105.613281 106.285156 C 120.265625 106.285156 132.824219 97.265625 138.054688 84.449219 C 138.925781 82.335938 139.414062 80.027344 139.414062 77.597656 C 139.414062 67.898438 131.574219 60.027344 121.90625 60.027344 C 114.515625 60.027344 108.191406 64.625 105.621094 71.121094 \"/>\n<path fill-rule=\"evenodd\" fill=\"rgb(90.196228%, 0%, 7.450867%)\" fill-opacity=\"1\" d=\"M 105.578125 71.066406 C 108.152344 64.574219 114.476562 59.980469 121.867188 59.984375 C 131.535156 59.988281 139.375 67.859375 139.371094 77.5625 C 139.367188 79.988281 138.875 82.300781 138.019531 84.425781 C 139.734375 80.339844 140.664062 75.835938 140.664062 71.117188 C 140.675781 51.679688 124.972656 35.910156 105.605469 35.902344 C 90.953125 35.894531 78.390625 44.910156 73.152344 57.722656 C 72.28125 59.835938 71.789062 62.144531 71.789062 64.570312 C 71.785156 74.273438 79.621094 82.148438 89.292969 82.152344 C 96.679688 82.152344 103.007812 77.558594 105.578125 71.066406 \"/>\n";
+
 let CURRENT_ESTIMATE=null;
-const esc=x=>String(x??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
-const FLAG_INNER="
-<rect x=\"0\" y=\"0\" width=\"212.195312\" height=\"141.464844\" fill=\"#ffffff\"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 33.664062 43.371094 L 53.285156 13.96875 L 58.617188 17.550781 L 38.992188 46.953125 Z M 33.664062 43.371094 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 40.898438 48.234375 L 60.523438 18.832031 L 65.851562 22.414062 L 46.230469 51.816406 Z M 40.898438 48.234375 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 48.132812 53.097656 L 67.753906 23.695312 L 73.085938 27.277344 L 53.464844 56.679688 Z M 48.132812 53.097656 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 73.085938 114.1875 L 53.464844 84.78125 L 48.132812 88.367188 L 67.757812 117.769531 Z M 73.085938 114.1875 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 55.40625 103.402344 L 50.078125 106.984375 L 40.898438 93.230469 L 46.226562 89.648438 Z M 65.851562 119.050781 L 56.671875 105.296875 L 51.339844 108.878906 L 60.519531 122.632812 Z M 65.851562 119.050781 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 58.617188 123.914062 L 38.992188 94.511719 L 33.664062 98.09375 L 53.285156 127.496094 Z M 58.617188 123.914062 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 156.789062 103.402344 L 162.121094 106.984375 L 171.300781 93.230469 L 165.96875 89.648438 Z M 146.347656 119.050781 L 155.527344 105.296875 L 160.855469 108.878906 L 151.675781 122.632812 Z M 146.347656 119.050781 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 98.539062 L 154.882812 102.121094 L 164.0625 88.367188 L 158.734375 84.78125 Z M 139.109375 114.1875 L 148.289062 100.429688 L 153.621094 104.011719 L 144.441406 117.769531 Z M 139.109375 114.1875 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 108.265625 L 169.355469 111.847656 L 178.535156 98.09375 L 173.203125 94.511719 Z M 153.582031 123.914062 L 162.761719 110.160156 L 168.089844 113.742188 L 158.910156 127.496094 Z M 153.582031 123.914062 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 146.347656 22.414062 L 165.96875 51.816406 L 171.296875 48.234375 L 151.675781 18.832031 Z M 146.347656 22.414062 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 164.023438 33.199219 L 169.355469 29.617188 L 178.53125 43.371094 L 173.203125 46.953125 Z M 153.582031 17.550781 L 162.761719 31.304688 L 168.089844 27.722656 L 158.910156 13.96875 Z M 153.582031 17.550781 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(13.725281%, 9.803772%, 8.627319%)\" fill-opacity=\"1\" d=\"M 149.554688 42.925781 L 154.882812 39.34375 L 164.0625 53.097656 L 158.734375 56.679688 Z M 139.109375 27.277344 L 148.289062 41.035156 L 153.621094 37.449219 L 144.441406 23.695312 Z M 139.109375 27.277344 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(0%, 30.979919%, 60.00061%)\" fill-opacity=\"1\" d=\"M 105.621094 71.121094 C 103.050781 77.613281 96.730469 82.210938 89.339844 82.210938 C 79.671875 82.210938 71.828125 74.34375 71.828125 64.640625 C 71.828125 62.214844 72.320312 59.902344 73.175781 57.773438 C 71.464844 61.863281 70.535156 66.367188 70.535156 71.085938 C 70.535156 90.523438 86.246094 106.285156 105.613281 106.285156 C 120.265625 106.285156 132.824219 97.265625 138.054688 84.449219 C 138.925781 82.335938 139.414062 80.027344 139.414062 77.597656 C 139.414062 67.898438 131.574219 60.027344 121.90625 60.027344 C 114.515625 60.027344 108.191406 64.625 105.621094 71.121094 \"/>
-<path fill-rule=\"evenodd\" fill=\"rgb(90.196228%, 0%, 7.450867%)\" fill-opacity=\"1\" d=\"M 105.578125 71.066406 C 108.152344 64.574219 114.476562 59.980469 121.867188 59.984375 C 131.535156 59.988281 139.375 67.859375 139.371094 77.5625 C 139.367188 79.988281 138.875 82.300781 138.019531 84.425781 C 139.734375 80.339844 140.664062 75.835938 140.664062 71.117188 C 140.675781 51.679688 124.972656 35.910156 105.605469 35.902344 C 90.953125 35.894531 78.390625 44.910156 73.152344 57.722656 C 72.28125 59.835938 71.789062 62.144531 71.789062 64.570312 C 71.785156 74.273438 79.621094 82.148438 89.292969 82.152344 C 96.679688 82.152344 103.007812 77.558594 105.578125 71.066406 \"/>
-";
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&#39;','"':'&quot;'}[c]));
+const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
+const optionLabel=it=>`${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`;
+
 function flagMarkup(x,y,w,h){
  return `<g transform="translate(${x} ${y}) scale(${w/212.195312} ${h/141.464844})">${FLAG_INNER}</g>`;
 }
-
-function optionLabel(it){return `${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`}
-function money(n){return Number(n||0).toLocaleString('ko-KR')+'원'}
 
 async function rpc(name,payload={}){
  const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
@@ -116,14 +117,12 @@ async function rpc(name,payload={}){
  const text=await res.text();
  if(!res.ok){
   let msg=text;
-  try{
-   const j=JSON.parse(text);
-   msg=j.message||j.hint||text;
-  }catch(e){}
+  try{const j=JSON.parse(text);msg=j.message||j.hint||text}catch{}
   throw new Error(msg);
  }
  return text?JSON.parse(text):null;
 }
+
 async function lookupEstimate(no){
  const data=await rpc('get_estimate_by_no',{p_estimate_no:no});
  return Array.isArray(data)?data[0]:data;
@@ -133,18 +132,20 @@ async function loadRecentEstimates(){
  return Array.isArray(data)?data:[];
 }
 async function softDeleteEstimate(no){
- const data=await rpc('soft_delete_estimate',{p_estimate_no:no});
- return data===true || data===1 || (Array.isArray(data) && data[0]===true);
+ return await rpc('soft_delete_estimate',{p_estimate_no:no});
 }
 
-
 function metrics(text,textH){
- const c=document.createElement('canvas'),ctx=c.getContext('2d');
- const ref=1000;ctx.font=`700 ${ref}px Nulshock`;
+ const canvas=document.createElement('canvas');
+ const ctx=canvas.getContext('2d');
+ const ref=1000;
+ ctx.font=`700 ${ref}px Nulshock`;
  const m=ctx.measureText(text||'H');
- const asc=Math.max(1,m.actualBoundingBoxAscent||750),des=Math.max(0,m.actualBoundingBoxDescent||0);
- const ratio=(asc+des)/ref,fontSize=textH/ratio,scale=fontSize/ref;
- return {w:m.width*scale,h:textH,fontSize,ascent:asc*scale};
+ const asc=Math.max(1,m.actualBoundingBoxAscent||750);
+ const des=Math.max(0,m.actualBoundingBoxDescent||0);
+ const ratio=(asc+des)/ref;
+ const fontSize=textH/ratio;
+ return {w:m.width*(fontSize/ref),h:textH,fontSize,ascent:asc*(fontSize/ref)};
 }
 
 function buildSvg(it){
@@ -152,55 +153,36 @@ function buildSvg(it){
  const fw=Number(it.flagW),fh=Number(it.flagH),qty=Number(it.qty);
  const unitW=it.layout==='horizontal'?fw+GAP+tm.w:Math.max(fw,tm.w);
  const unitH=it.layout==='horizontal'?Math.max(fh,tm.h):fh+GAP+tm.h;
- const W=unitW,H=qty*unitH+(qty-1)*ROW_GAP,col=it.color==='white'?'#fff':'#111';
+ const W=unitW;
+ const H=qty*unitH+(qty-1)*ROW_GAP;
+ const fill=it.color==='white'?'#fff':'#111';
  let shapes='';
  for(let i=0;i<qty;i++){
-  const gy=i*(unitH+ROW_GAP);let fx,fy,tx,baseline,anchor;
+  const gy=i*(unitH+ROW_GAP);
+  let fx,fy,tx,baseline,anchor;
   if(it.layout==='horizontal'){
    fx=0;fy=gy+(unitH-fh)/2;tx=fw+GAP;baseline=gy+(unitH-tm.h)/2+tm.ascent;anchor='start';
   }else{
    fx=(unitW-fw)/2;fy=gy;tx=unitW/2;baseline=gy+fh+GAP+tm.ascent;anchor='middle';
   }
   shapes+=flagMarkup(fx,fy,fw,fh);
-  shapes+=`<text x="${tx}" y="${baseline}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSize}" text-anchor="${anchor}">${esc(it.text)}</text>`;
+  shapes+=`<text x="${tx}" y="${baseline}" fill="${fill}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSize}" text-anchor="${anchor}">${esc(it.text)}</text>`;
  }
- const metadata=esc(JSON.stringify({estimateItem:it,generatedBy:'RIGFORGE Admin v9.0'}));
- return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><metadata>${metadata}</metadata><defs><style>@font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}text{font-family:Nulshock;font-weight:700}</style></defs>${shapes}</svg>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><defs><style>@font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}text{font-family:Nulshock;font-weight:700}</style></defs>${shapes}</svg>`;
 }
 
 function downloadSvg(svg,name){
  const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
- document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
-}
-
-function render(row){
- CURRENT_ESTIMATE=row;
- $('result').classList.remove('hidden');
- $('meta').innerHTML=`
-  <div>견적번호</div><div class="code">${esc(row.estimate_no)}</div>
-  <div>Builder</div><div>${esc(row.builder_type)} v${esc(row.builder_version)}</div>
-  <div>최종금액</div><div>${money(row.total_price)}</div>
-  <div>상태</div><div>${esc(row.status)}</div>
-  <div>저장시간</div><div>${new Date(row.created_at).toLocaleString('ko-KR')}</div>`;
- const items=Array.isArray(row.items)?row.items:[];
- $('items').innerHTML=items.map((it,i)=>{
-  const svg=buildSvg(it);
-  return `<div class="item">
-   <div class="item-head"><div class="item-title">${i+1}. ${optionLabel(it)} × ${it.qty}</div><strong>${money(it.amount)}</strong></div>
-   <div class="note">이름: ${esc(it.text)} · 색상: ${String(it.color).toUpperCase()} · 글자 높이: ${it.textH}mm · 저장 폭: ${it.textW}mm</div>
-   <div class="preview">${svg}</div>
-   <div class="item-actions"><button class="primary" data-download="${i}">SVG 다운로드</button></div>
-  </div>`;
- }).join('');
- $('items').querySelectorAll('[data-download]').forEach(btn=>btn.onclick=()=>{
-  const i=Number(btn.dataset.download),it=items[i];
-  downloadSvg(buildSvg(it),`${row.estimate_no}_${i+1}_${it.layout}_${it.size}.svg`);
- });
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;a.download=name;
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
 function renderRecent(rows){
- const panel=$('recentPanel'),list=$('recentList');
+ const panel=$('recentPanel');
+ const list=$('recentList');
  panel.classList.remove('hidden');
  if(!rows.length){
   list.innerHTML='<div class="note">저장된 견적이 없습니다.</div>';
@@ -212,57 +194,101 @@ function renderRecent(rows){
    <div>${esc(row.driver_name||'-')}</div>
    <div class="muted-hide">${money(row.total_price)}</div>
    <div><span class="status-badge">${esc(row.status||'saved')}</span></div>
-   <button class="ghost" data-open="${esc(row.estimate_no)}">조회</button>
-   <button class="danger" data-delete="${esc(row.estimate_no)}">삭제</button>
+   <button type="button" class="ghost" data-open="${esc(row.estimate_no)}">조회</button>
+   <button type="button" class="danger" data-delete="${esc(row.estimate_no)}">삭제</button>
   </div>`).join('');
 
- list.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>{
-  $('estimateInput').value=btn.dataset.open;
-  search();
+ list.querySelectorAll('[data-open]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+   $('estimateInput').value=btn.dataset.open;
+   searchEstimate();
+  });
  });
 
- list.querySelectorAll('[data-delete]').forEach(btn=>btn.onclick=async()=>{
-  const no=btn.dataset.delete;
-  if(!confirm(`정말 삭제하시겠습니까?\n\n견적번호: ${no}\n\n삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
-  btn.disabled=true;
-  btn.textContent='삭제 중...';
-  try{
-   const ok=await softDeleteEstimate(no);
-   if(!ok)throw new Error('삭제할 견적을 찾지 못했습니다.');
-   const rows=await loadRecentEstimates();
-   renderRecent(rows);
-   $('result').classList.add('hidden');
-   $('status').className='status ok';
-   $('status').textContent=`${no} 견적을 삭제 처리했습니다.`;
-  }catch(e){
-   console.error(e);
-   btn.disabled=false;
-   btn.textContent='삭제';
-   $('status').className='status err';
-   $('status').textContent='삭제 실패: '+(e.message||e);
-  }
+ list.querySelectorAll('[data-delete]').forEach(btn=>{
+  btn.addEventListener('click',async()=>{
+   const no=btn.dataset.delete;
+   if(!confirm(`정말 삭제하시겠습니까?\n\n견적번호: ${no}\n\n삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
+   btn.disabled=true;btn.textContent='삭제 중...';
+   try{
+    const ok=await softDeleteEstimate(no);
+    if(!ok)throw new Error('삭제할 견적을 찾지 못했습니다.');
+    renderRecent(await loadRecentEstimates());
+    $('result').classList.add('hidden');
+    $('status').className='status ok';
+    $('status').textContent=`${no} 견적을 삭제 처리했습니다.`;
+   }catch(e){
+    console.error(e);
+    $('status').className='status err';
+    $('status').textContent='삭제 실패: '+(e.message||e);
+    btn.disabled=false;btn.textContent='삭제';
+   }
+  });
  });
 }
 
-async function search(){
+function renderEstimate(row){
+ CURRENT_ESTIMATE=row;
+ $('result').classList.remove('hidden');
+ $('meta').innerHTML=`
+  <div>견적번호</div><div class="code">${esc(row.estimate_no)}</div>
+  <div>Builder</div><div>${esc(row.builder_type)} v${esc(row.builder_version)}</div>
+  <div>최종금액</div><div>${money(row.total_price)}</div>
+  <div>상태</div><div>${esc(row.status)}</div>
+  <div>저장시간</div><div>${new Date(row.created_at).toLocaleString('ko-KR')}</div>`;
+
+ const items=Array.isArray(row.items)?row.items:[];
+ $('items').innerHTML=items.map((it,i)=>{
+  const svg=buildSvg(it);
+  return `<div class="item">
+   <div class="item-head">
+    <div class="item-title">${i+1}. ${optionLabel(it)} × ${it.qty}</div>
+    <strong>${money(it.amount)}</strong>
+   </div>
+   <div class="note">이름: ${esc(it.text)} · 색상: ${String(it.color).toUpperCase()} · 글자 높이: ${it.textH}mm · 저장 폭: ${it.textW}mm</div>
+   <div class="preview">${svg}</div>
+   <div class="item-actions">
+    <button type="button" class="primary" data-download="${i}">SVG 다운로드</button>
+   </div>
+  </div>`;
+ }).join('');
+
+ $('items').querySelectorAll('[data-download]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+   const i=Number(btn.dataset.download);
+   const it=items[i];
+   downloadSvg(buildSvg(it),`${row.estimate_no}_${i+1}_${it.layout}_${it.size}.svg`);
+  });
+ });
+}
+
+async function searchEstimate(){
  const no=$('estimateInput').value.trim().toUpperCase();
  if(!/^DN-\d{6}-[A-Z2-9]{4}$/.test(no)){
-  $('status').className='status err';$('status').textContent='견적번호 형식을 확인해 주세요. 예: DN-260725-4SJ6';return;
+  $('status').className='status err';
+  $('status').textContent='견적번호 형식을 확인해 주세요. 예: DN-260725-4SJ6';
+  return;
  }
- $('status').className='status';$('status').textContent='견적을 불러오는 중입니다...';
+ $('status').className='status';
+ $('status').textContent='견적을 불러오는 중입니다...';
  try{
   await document.fonts.load('700 100px Nulshock');
   const row=await lookupEstimate(no);
   if(!row)throw new Error('해당 견적번호를 찾지 못했습니다.');
-  render(row);$('status').className='status ok';$('status').textContent='견적을 불러왔습니다.';
+  renderEstimate(row);
+  $('status').className='status ok';
+  $('status').textContent='견적을 불러왔습니다.';
  }catch(e){
-  console.error(e);$('result').classList.add('hidden');$('status').className='status err';
+  console.error(e);
+  $('result').classList.add('hidden');
+  $('status').className='status err';
   $('status').textContent='조회 실패: '+(e.message||e);
  }
 }
-$('searchBtn').onclick=search;
-$('estimateInput').onkeydown=e=>{if(e.key==='Enter')search()};
-$('recentBtn').onclick=async()=>{
+
+$('searchBtn').addEventListener('click',searchEstimate);
+$('estimateInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchEstimate()});
+$('recentBtn').addEventListener('click',async()=>{
  $('status').className='status';
  $('status').textContent='최근 견적을 불러오는 중입니다...';
  try{
@@ -275,19 +301,14 @@ $('recentBtn').onclick=async()=>{
   $('status').className='status err';
   $('status').textContent='최근 견적 조회 실패: '+(e.message||e);
  }
-};
+});
 
-$('deleteCurrentBtn').onclick=async()=>{
+$('deleteCurrentBtn').addEventListener('click',async()=>{
  if(!CURRENT_ESTIMATE)return;
  const no=CURRENT_ESTIMATE.estimate_no;
- if(!confirm(`정말 삭제하시겠습니까?
-
-견적번호: ${no}
-
-삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
+ if(!confirm(`정말 삭제하시겠습니까?\n\n견적번호: ${no}\n\n삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
  const btn=$('deleteCurrentBtn');
- btn.disabled=true;
- btn.textContent='삭제 중...';
+ btn.disabled=true;btn.textContent='삭제 중...';
  try{
   const ok=await softDeleteEstimate(no);
   if(!ok)throw new Error('삭제할 견적을 찾지 못했습니다.');
@@ -296,18 +317,15 @@ $('deleteCurrentBtn').onclick=async()=>{
   $('estimateInput').value='';
   $('status').className='status ok';
   $('status').textContent=`${no} 견적을 삭제 처리했습니다.`;
-  if(!$('recentPanel').classList.contains('hidden')){
-   renderRecent(await loadRecentEstimates());
-  }
+  if(!$('recentPanel').classList.contains('hidden'))renderRecent(await loadRecentEstimates());
  }catch(e){
   console.error(e);
   $('status').className='status err';
   $('status').textContent='삭제 실패: '+(e.message||e);
  }finally{
-  btn.disabled=false;
-  btn.textContent='현재 견적 삭제';
+  btn.disabled=false;btn.textContent='현재 견적 삭제';
  }
-};
+});
 </script>
 </body>
 </html>
