@@ -1,14 +1,24 @@
-RIGFORGE Driver Name Builder v9.2
+RIGFORGE Driver Name System v12.0
 
-수정사항
-- Admin 견적 조회 fail 오류를 확인하기 쉽도록 오류 메시지 개선
-- 견적번호 직접 조회 유지
-- 최근 견적 목록 조회 기능 추가
-- 최근 견적에서 조회 버튼을 누르면 상세정보와 SVG 생성 화면 표시
+구성
+- index.html : 고객용 Driver Name Builder
+- admin.html : 관리자용 견적/주문 관리
+- Nulshock-Bold.otf : 미리보기 및 SVG 글꼴
 
-적용방법
-1. Supabase SQL Editor에서 supabase-v9.2.sql 전체 실행
-2. GitHub 저장소에서 admin.html만 새 파일로 교체
-3. 배포 후 admin.html에서 테스트
+버전 표시
+- 고객 페이지: CUSTOMER · BUILD v12.0
+- 관리자 페이지: ADMIN · BUILD v12.0
+- Supabase 저장값 builder_version: 12.0
 
-고객용 index.html은 v9.1 그대로 사용 가능
+적용 방법
+1. GitHub 저장소의 index.html과 admin.html을 둘 다 교체합니다.
+2. Nulshock-Bold.otf는 같은 폴더에 유지합니다.
+3. GitHub Pages 배포가 끝난 뒤 Ctrl+F5로 새로고침합니다.
+4. 관리자 페이지는 /admin.html 로 접속합니다.
+5. 관리자 페이지의 '고객 빌더 열기'는 /index.html?v=12.0 을 엽니다.
+
+주의
+- index.html만 교체하면 고객 페이지에만 새 버전이 적용됩니다.
+- admin.html만 교체하면 관리자 화면만 새 버전이 적용됩니다.
+- 이번 ZIP은 두 파일을 한 세트로 교체하도록 구성했습니다.
+- Supabase SQL을 다시 실행할 필요는 없습니다.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Admin Builder v11.4 FINAL</title>
+<title>RIGFORGE Driver Name Admin v12.0</title>
 <style>
 @font-face{font-family:Nulshock;src:url('./Nulshock-Bold.otf') format('opentype');font-weight:700}
 :root{--bg:#0b0e12;--panel:#11161d;--panel2:#171d25;--line:#303947;--text:#f4f7fb;--muted:#a9b6c7;--accent:#ff6500;--ok:#38d27c;--danger:#ff5b5b}
@@ -14,7 +14,7 @@ button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-
 .primary{background:var(--accent);color:#090909}
 .ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
 .danger{background:#5a2020;color:#fff;border:1px solid #8d3b3b}
-.wrap{max-width:1200px;margin:auto;padding:24px}
+.wrap{max-width:1200px;margin:auto;padding:24px;position:relative}.version-badge{position:absolute;top:24px;right:24px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.08em}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
 h1{margin:0;font-size:32px}
 .sub{color:var(--muted);margin-top:6px}
@@ -77,12 +77,13 @@ select{background:#0d1218;color:var(--text);border:1px solid var(--line);border-
 </head>
 <body>
 <div class="wrap">
+<div class="version-badge">ADMIN · BUILD v12.0</div>
 <header>
  <div>
-  <h1>RIGFORGE Admin Builder v11.4 FINAL</h1>
+  <h1>RIGFORGE Driver Name Admin</h1>
   <div class="sub">견적 조회, 일반 SVG 다운로드, 주문 상태, 발송정보, 휴지통을 간단하게 관리합니다.</div>
  </div>
- <a class="btn ghost" href="index.html">고객 빌더</a>
+ <a class="btn ghost" href="index.html?v=12.0">고객 빌더 열기</a>
 </header>
 
 <section class="panel">
@@ -294,7 +295,7 @@ function buildSvg(it){
    text{font-family:Nulshock;font-weight:700}
   </style>
  </defs>
- <metadata>RIGFORGE production SVG - convert text to outlines in Illustrator using Ctrl+Shift+O</metadata>
+ <metadata>RIGFORGE Driver Name System v12.0 production SVG - convert text to outlines in Illustrator using Ctrl+Shift+O</metadata>
  ${shapes}
 </svg>`;
 }

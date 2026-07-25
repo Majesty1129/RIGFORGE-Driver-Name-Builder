@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Builder</title>
+<title>RIGFORGE Driver Name Customer Builder v12.0</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -63,12 +63,27 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 
 .name-lock{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--muted);font-size:12px}.name-lock strong{color:var(--accent)}#nameInput:disabled{opacity:.75;cursor:not-allowed}.btn:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}.modal-backdrop.show{display:flex}.modal{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}.modal h2{margin:0 0 10px}.modal-code{font-size:26px;font-weight:900;letter-spacing:.06em;color:var(--accent);padding:14px;background:var(--panel2);border-radius:12px;text-align:center;margin:14px 0}.modal-actions{display:flex;gap:8px;flex-wrap:wrap}.strike{color:var(--muted);text-decoration:line-through}.discount-text{color:var(--danger);font-weight:900}
 @media(max-width:920px){.grid{grid-template-columns:1fr}.wrap{padding:14px}.meta{grid-template-columns:1fr 1fr}}
+
+.history-card{margin-top:18px;margin-bottom:24px}
+.history-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.history-head h2{margin:0}
+.history-list{margin-top:14px}
+.history-empty{padding:22px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center}
+.history-item{background:#111720;border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:10px}
+.history-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.history-code{font-weight:900;color:var(--accent);font-size:18px}
+.history-name{font-weight:900}
+.history-meta{margin-top:5px;color:var(--muted);font-size:13px}
+.history-options{margin-top:10px;line-height:1.55;font-size:14px}
+.history-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.history-actions button{padding:9px 12px;border-radius:10px}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">RIGFORGE GARAGE</div>
-  <div class="version-badge">BUILD v9.1</div>
+  <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
+  <div class="version-badge">CUSTOMER · BUILD v12.0</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -151,6 +166,16 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
       <div class="note">글자 높이는 Nulshock Bold의 실제 보이는 외곽 높이 기준입니다. 미리보기와 제작 SVG 모두 같은 보정값을 사용합니다.</div>
     </section>
   </div>
+<section class="card history-card">
+  <div class="history-head">
+    <div>
+      <h2>내 견적 내역</h2>
+      <div class="note" style="margin-top:6px">이 기기·브라우저에서 저장한 견적을 최대 50건까지 다시 확인할 수 있습니다.</div>
+    </div>
+    <button type="button" class="btn secondary" id="clearHistoryBtn">내역 전체 삭제</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</section>
 </div>
 
 <div id="saveModal" class="modal-backdrop"><div class="modal"><h2>견적이 저장되었습니다</h2><div class="note">아래 견적번호를 스마트스토어 필수 입력란에 입력해 주세요.</div><div id="savedQuoteNo" class="modal-code"></div><div class="summary" id="savedOrderSummary"></div><div class="modal-actions" style="margin-top:14px"><button type="button" class="btn secondary" id="copySavedQuoteBtn">견적번호 복사</button><button type="button" class="btn primary" id="goStoreBtn">스마트스토어 주문하기</button><button type="button" class="btn ghost" id="closeSaveModalBtn">닫기</button></div></div></div>
@@ -176,6 +201,115 @@ const CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const S={layout:'horizontal',size:'S',color:'white',qty:1,text:'',textH:15,quote:'',quoteItems:[],lockedName:'',saving:false};
 const $=id=>document.getElementById(id);
 const money=n=>n.toLocaleString('ko-KR')+'원';
+
+const HISTORY_KEY='rigforge_driver_name_history_v1';
+
+function readEstimateHistory(){
+ try{
+  const parsed=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  return Array.isArray(parsed)?parsed:[];
+ }catch(e){
+  return [];
+ }
+}
+
+function writeEstimateHistory(list){
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(list.slice(0,50)));
+}
+
+function saveEstimateHistory(r){
+ const computedItems=(r.payload&&Array.isArray(r.payload.items))?r.payload.items:[];
+ const record={
+  estimateNo:r.estimateNo,
+  driverName:S.lockedName||S.text||'',
+  items:computedItems.map(it=>({
+   layout:it.layout,
+   size:it.size,
+   color:it.color,
+   qty:it.qty,
+   textH:it.textH,
+   textW:it.textW,
+   amount:it.amount
+  })),
+  subtotal:r.subtotal,
+  shipping:r.shipping,
+  total:r.total,
+  createdAt:new Date().toISOString()
+ };
+ const list=readEstimateHistory().filter(x=>x.estimateNo!==record.estimateNo);
+ list.unshift(record);
+ writeEstimateHistory(list);
+ renderEstimateHistory();
+}
+
+function formatHistoryDate(value){
+ try{
+  return new Date(value).toLocaleString('ko-KR',{
+   year:'numeric',month:'2-digit',day:'2-digit',
+   hour:'2-digit',minute:'2-digit'
+  });
+ }catch(e){
+  return value||'';
+ }
+}
+
+function renderEstimateHistory(){
+ const box=$('historyList');
+ if(!box)return;
+ const list=readEstimateHistory();
+
+ if(!list.length){
+  box.innerHTML='<div class="history-empty"><strong style="display:block;color:var(--text);margin-bottom:6px">아직 저장된 견적이 없습니다.</strong>아래의 “견적 저장 후 주문하기”로 새 견적을 저장하면 이곳에 자동으로 표시됩니다.</div>';
+  return;
+ }
+
+ box.innerHTML=list.map(row=>{
+  const options=(row.items||[]).map(it=>{
+   const layout=it.layout==='horizontal'?'가로형':'세로형';
+   return `${layout} ${esc(it.size)} × ${Number(it.qty||1)} · ${String(it.color||'').toUpperCase()} · 글자 높이 ${Number(it.textH||0)}mm`;
+  }).join('<br>');
+
+  return `<div class="history-item">
+   <div class="history-top">
+    <div>
+     <div class="history-code">${esc(row.estimateNo)}</div>
+     <div class="history-meta">${formatHistoryDate(row.createdAt)}</div>
+    </div>
+    <div style="text-align:right">
+     <div class="history-name">${esc(row.driverName||'')}</div>
+     <div class="history-meta">최종 결제금액 ${money(Number(row.total||0))}</div>
+    </div>
+   </div>
+   <div class="history-options">${options||'-'}</div>
+   <div class="history-actions">
+    <button type="button" class="btn secondary" data-history-copy="${esc(row.estimateNo)}">견적번호 복사</button>
+    <button type="button" class="btn ghost" data-history-delete="${esc(row.estimateNo)}">내역 삭제</button>
+   </div>
+  </div>`;
+ }).join('');
+
+ box.querySelectorAll('[data-history-copy]').forEach(btn=>{
+  btn.onclick=async()=>{
+   try{
+    await navigator.clipboard.writeText(btn.dataset.historyCopy);
+    const old=btn.textContent;
+    btn.textContent='복사됨';
+    setTimeout(()=>btn.textContent=old,900);
+   }catch(e){
+    alert(btn.dataset.historyCopy);
+   }
+  };
+ });
+
+ box.querySelectorAll('[data-history-delete]').forEach(btn=>{
+  btn.onclick=()=>{
+   const no=btn.dataset.historyDelete;
+   writeEstimateHistory(readEstimateHistory().filter(x=>x.estimateNo!==no));
+   renderEstimateHistory();
+  };
+ });
+}
+
 function baseQty(){return 1}
 function quoteNo(){const d=new Date(),y=String(d.getFullYear()).slice(-2),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');let tail='';for(let i=0;i<4;i++)tail+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return `DN-${y}${m}${day}-${tail}`;}
 function textMetrics(){
@@ -317,7 +451,7 @@ async function saveEstimateToSupabase(){
   const payload={
    estimate_no:estimateNo,
    builder_type:'driver-name',
-   builder_version:'9.1',
+   builder_version:'12.0',
    items:computedItems.map(item=>({...item,orderMeta})),
    total_price:total,
    status:'saved'
@@ -339,6 +473,7 @@ async function saveEstimateToSupabase(){
  throw new Error('견적번호 생성에 실패했습니다. 다시 시도해 주세요.');
 }
 function showSavedModal(r){
+ saveEstimateHistory(r);
  S.quote=r.estimateNo;
  $('savedQuoteNo').textContent=r.estimateNo;
  const lines=S.quoteItems.map(it=>`${optionLabel(it.layout,it.size)} × ${it.qty}`).join('<br>');
@@ -444,7 +579,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Builder v8.0',
+  builder:'RIGFORGE Driver Name Customer Builder v12.0',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
@@ -475,6 +610,14 @@ $('nameInput').oninput=e=>{
 $('minus').onclick=()=>{S.qty=Math.max(baseQty(),S.qty-1);update()};$('plus').onclick=()=>{S.qty=Math.min(20,S.qty+1);update()};
 $('addQuoteBtn').onclick=()=>{if(!valid())return alert('이름과 글자 폭 제한을 확인해 주세요.');const name=S.text.trim();if(!name)return alert('이름을 입력해 주세요.');if(S.lockedName&&name!==S.lockedName)return alert(`현재 견적의 이름은 "${S.lockedName}"입니다.\n다른 이름은 새 견적으로 시작해 주세요.`);if(!S.lockedName)S.lockedName=name;S.text=S.lockedName;$('nameInput').value=S.lockedName;const same=S.quoteItems.find(x=>x.layout===S.layout&&x.size===S.size&&x.color===S.color&&x.textH===S.textH);if(same)same.qty=Math.min(20,same.qty+S.qty);else S.quoteItems.push(currentQuoteItem());S.qty=1;saveQuoteItems();update();alert('구매 옵션에 추가했습니다.');};
 $('newQuoteBtn').onclick=()=>{if(S.quoteItems.length&&!confirm('현재 견적을 모두 비우고 새 이름으로 시작할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';S.text='';$('nameInput').value='';try{localStorage.removeItem('rigforgeDriverNameQuotesV91')}catch(e){}update();$('nameInput').focus()};
+
+$('clearHistoryBtn').onclick=()=>{
+ if(!readEstimateHistory().length)return;
+ if(!confirm('이 브라우저에 저장된 견적 내역을 모두 삭제할까요?'))return;
+ localStorage.removeItem(HISTORY_KEY);
+ renderEstimateHistory();
+};
+
 $('saveOrderBtn').onclick=async()=>{if(S.saving)return;if(!S.quoteItems.length)return alert('먼저 구매 옵션을 추가해 주세요.');S.saving=true;$('saveOrderBtn').disabled=true;$('saveStatus').textContent='견적을 저장하고 있습니다...';try{const r=await saveEstimateToSupabase();$('saveStatus').textContent=`저장 완료: ${r.estimateNo}`;try{await navigator.clipboard.writeText(r.estimateNo)}catch(e){}showSavedModal(r)}catch(e){console.error(e);$('saveStatus').textContent='저장에 실패했습니다.';alert('견적 저장에 실패했습니다.\n'+e.message)}finally{S.saving=false;$('saveOrderBtn').disabled=false}};
 const copySavedQuoteBtn=$('copySavedQuoteBtn');
 const goStoreBtn=$('goStoreBtn');
@@ -509,7 +652,9 @@ $('saveModal').addEventListener('click',e=>{
 $('clearQuotesBtn').onclick=()=>{if(!S.quoteItems.length)return;if(!confirm('추가한 구매 옵션을 모두 삭제할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';saveQuoteItems();update()};
 $('minus').onclick=()=>{S.qty=Math.max(1,S.qty-1);update()};$('plus').onclick=()=>{S.qty=Math.min(20,S.qty+1);update()};
 document.fonts.load('700 20px Nulshock').then(()=>{$('fontDot').className='font-dot ok';$('fontLoadStatus').textContent='Nulshock Bold 로딩 완료';update()}).catch(()=>{$('fontDot').className='font-dot bad';$('fontLoadStatus').textContent='폰트 파일을 확인해 주세요';update()});
-loadQuoteItems();setHeightRules(true);update();renderQuoteList();
+window.addEventListener('storage',e=>{if(e.key===HISTORY_KEY)renderEstimateHistory();});
+loadQuoteItems();setHeightRules(true);renderEstimateHistory();
+update();renderQuoteList();
 })();
 </script>
 </body>
