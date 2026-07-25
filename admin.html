@@ -13,7 +13,7 @@ h1{margin:0;font-size:30px}.sub{color:var(--muted);margin-top:6px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
 .search{display:flex;gap:10px;flex-wrap:wrap}input{flex:1;min-width:250px;background:#0d1218;border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--text);font-size:17px;text-transform:uppercase}
 button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-.primary{background:var(--accent);color:#090909}.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.danger{background:#422;color:#fff}
+.primary{background:var(--accent);color:#090909}.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.danger{background:#5a2020;color:#fff;border:1px solid #8d3b3b}.danger:hover{background:#762727}.status-badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#202733;border:1px solid var(--line);font-size:12px;font-weight:800}.status-deleted{color:#ff7777}
 .status{margin-top:12px;color:var(--muted)}.ok{color:var(--ok)}.err{color:var(--danger)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
 .meta{display:grid;grid-template-columns:150px 1fr;gap:9px 14px}.meta div:nth-child(odd){color:var(--muted)}.code{font-family:monospace;font-size:20px;color:var(--accent);font-weight:900}
@@ -22,7 +22,7 @@ button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-
 .preview{background:#0a0d11;border:1px solid var(--line);border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:15px}
 .preview svg{max-width:100%;height:auto;background:#232931}
 .note{color:var(--muted);font-size:13px;line-height:1.5}.hidden{display:none}
-.recent-row{display:grid;grid-template-columns:1.2fr 1fr .8fr auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+.recent-row{display:grid;grid-template-columns:1.2fr 1fr .8fr .7fr auto auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
 .recent-row button{padding:9px 12px}
 @media(max-width:700px){.recent-row{grid-template-columns:1fr}.recent-row .muted-hide{display:none}}
 </style>
@@ -30,7 +30,7 @@ button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-
 <body>
 <div class="wrap">
 <header>
- <div><h1>RIGFORGE Admin Builder v9.2</h1><div class="sub">견적번호로 Supabase 데이터를 불러와 제작 SVG를 생성합니다.</div></div>
+ <div><h1>RIGFORGE Admin Builder v9.3</h1><div class="sub">견적번호로 Supabase 데이터를 불러와 제작 SVG를 생성합니다.</div></div>
  <a class="btn ghost" href="index.html">고객 빌더</a>
 </header>
 
@@ -66,6 +66,9 @@ button,a.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-
  <section class="panel">
   <h2>제작 옵션</h2>
   <div id="items"></div>
+  <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
+   <button class="danger" id="deleteCurrentBtn">현재 견적 삭제</button>
+  </div>
  </section>
 </div>
 </div>
@@ -74,9 +77,38 @@ const SUPABASE_URL='https://hbabjwicpilqoqbfdqlz.supabase.co';
 const SUPABASE_KEY='sb_publishable_GW3eX7jxoaLWrCVB6Acsbg_QwE5jG2R';
 const GAP=10,ROW_GAP=15;
 const $=id=>document.getElementById(id);
+let CURRENT_ESTIMATE=null;
 const esc=x=>String(x??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
 function flagMarkup(x,y,w,h){
- return `<g transform="translate(${x} ${y}) scale(${w/212.598} ${h/141.732})">${FLAG_INNER}</g>`;
+ const s=Math.min(w/30,h/20);
+ const ox=x+(w-30*s)/2, oy=y+(h-20*s)/2;
+ const cx=ox+15*s, cy=oy+10*s, r=5*s;
+ const red='#cd2e3a', blue='#0047a0', black='#111';
+ const line=(x1,y1,x2,y2,sw=1.4)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${black}" stroke-width="${sw*s}" stroke-linecap="square"/>`;
+ const trigram=(tx,ty,pattern)=>{
+  let g='';
+  pattern.forEach((solid,row)=>{
+   const yy=ty+row*2.2*s;
+   if(solid) g+=line(tx,yy,tx+5.8*s,yy,1.1);
+   else{
+    g+=line(tx,yy,tx+2.3*s,yy,1.1);
+    g+=line(tx+3.5*s,yy,tx+5.8*s,yy,1.1);
+   }
+  });
+  return g;
+ };
+ return `
+ <g>
+  <rect x="${ox}" y="${oy}" width="${30*s}" height="${20*s}" rx="${0.7*s}" fill="#fff"/>
+  <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy} A ${r/2} ${r/2} 0 0 0 ${cx} ${cy} A ${r/2} ${r/2} 0 0 1 ${cx-r} ${cy}Z" fill="${red}"/>
+  <path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 1 ${cx-r} ${cy} A ${r/2} ${r/2} 0 0 0 ${cx} ${cy} A ${r/2} ${r/2} 0 0 1 ${cx+r} ${cy}Z" fill="${blue}"/>
+  <g transform="rotate(-34 ${cx} ${cy})">
+   ${trigram(ox+4*s,oy+3.4*s,[1,1,1])}
+   ${trigram(ox+20.2*s,oy+3.4*s,[0,1,0])}
+   ${trigram(ox+4*s,oy+12.2*s,[1,0,1])}
+   ${trigram(ox+20.2*s,oy+12.2*s,[0,0,0])}
+  </g>
+ </g>`;
 }
 
 function optionLabel(it){return `${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`}
@@ -111,6 +143,11 @@ async function loadRecentEstimates(){
  const data=await rpc('list_recent_estimates',{p_limit:30});
  return Array.isArray(data)?data:[];
 }
+async function softDeleteEstimate(no){
+ const data=await rpc('soft_delete_estimate',{p_estimate_no:no});
+ return data===true || data===1 || (Array.isArray(data) && data[0]===true);
+}
+
 
 function metrics(text,textH){
  const c=document.createElement('canvas'),ctx=c.getContext('2d');
@@ -149,6 +186,7 @@ function downloadSvg(svg,name){
 }
 
 function render(row){
+ CURRENT_ESTIMATE=row;
  $('result').classList.remove('hidden');
  $('meta').innerHTML=`
   <div>견적번호</div><div class="code">${esc(row.estimate_no)}</div>
@@ -184,11 +222,36 @@ function renderRecent(rows){
    <div><strong class="code" style="font-size:16px">${esc(row.estimate_no)}</strong></div>
    <div>${esc(row.driver_name||'-')}</div>
    <div class="muted-hide">${money(row.total_price)}</div>
+   <div><span class="status-badge">${esc(row.status||'saved')}</span></div>
    <button class="ghost" data-open="${esc(row.estimate_no)}">조회</button>
+   <button class="danger" data-delete="${esc(row.estimate_no)}">삭제</button>
   </div>`).join('');
+
  list.querySelectorAll('[data-open]').forEach(btn=>btn.onclick=()=>{
   $('estimateInput').value=btn.dataset.open;
   search();
+ });
+
+ list.querySelectorAll('[data-delete]').forEach(btn=>btn.onclick=async()=>{
+  const no=btn.dataset.delete;
+  if(!confirm(`정말 삭제하시겠습니까?\n\n견적번호: ${no}\n\n삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
+  btn.disabled=true;
+  btn.textContent='삭제 중...';
+  try{
+   const ok=await softDeleteEstimate(no);
+   if(!ok)throw new Error('삭제할 견적을 찾지 못했습니다.');
+   const rows=await loadRecentEstimates();
+   renderRecent(rows);
+   $('result').classList.add('hidden');
+   $('status').className='status ok';
+   $('status').textContent=`${no} 견적을 삭제 처리했습니다.`;
+  }catch(e){
+   console.error(e);
+   btn.disabled=false;
+   btn.textContent='삭제';
+   $('status').className='status err';
+   $('status').textContent='삭제 실패: '+(e.message||e);
+  }
  });
 }
 
@@ -222,6 +285,38 @@ $('recentBtn').onclick=async()=>{
   console.error(e);
   $('status').className='status err';
   $('status').textContent='최근 견적 조회 실패: '+(e.message||e);
+ }
+};
+
+$('deleteCurrentBtn').onclick=async()=>{
+ if(!CURRENT_ESTIMATE)return;
+ const no=CURRENT_ESTIMATE.estimate_no;
+ if(!confirm(`정말 삭제하시겠습니까?
+
+견적번호: ${no}
+
+삭제된 견적은 일반 목록에서 숨겨집니다.`))return;
+ const btn=$('deleteCurrentBtn');
+ btn.disabled=true;
+ btn.textContent='삭제 중...';
+ try{
+  const ok=await softDeleteEstimate(no);
+  if(!ok)throw new Error('삭제할 견적을 찾지 못했습니다.');
+  CURRENT_ESTIMATE=null;
+  $('result').classList.add('hidden');
+  $('estimateInput').value='';
+  $('status').className='status ok';
+  $('status').textContent=`${no} 견적을 삭제 처리했습니다.`;
+  if(!$('recentPanel').classList.contains('hidden')){
+   renderRecent(await loadRecentEstimates());
+  }
+ }catch(e){
+  console.error(e);
+  $('status').className='status err';
+  $('status').textContent='삭제 실패: '+(e.message||e);
+ }finally{
+  btn.disabled=false;
+  btn.textContent='현재 견적 삭제';
  }
 };
 </script>
