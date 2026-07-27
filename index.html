@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Customer Builder v13.0</title>
+<title>RIGFORGE Driver Name Customer Builder v13.1</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -84,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
-  <div class="version-badge">CUSTOMER · BUILD v13.0</div>
+  <div class="version-badge">CUSTOMER · BUILD v13.1</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -405,10 +405,11 @@ function price(){
 function regularPrice(){return currentUnitPrice()*setCountFromQty(S.qty)}
 function discountAmount(){
  const sets=setCountFromQty(S.qty);
- const existingSets=currentEstimateSetCount();
- const fullPriceSlots=Math.max(0,1-existingSets);
- if(existingSets==0 && sets>=2) return MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets;
- return MULTI_DISCOUNT_PER_ADDITIONAL_SET*Math.max(0,sets-fullPriceSlots);
+ const hasOther=currentEstimateSetCount()>0;
+ if(hasOther){
+   return MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets;
+ }
+ return sets>=2 ? MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets : 0;
 }
 function optionLabel(layout=S.layout,size=S.size){return `${layout==='horizontal'?'가로형':'세로형'} ${size}`}
 function productSubtotal(){
@@ -666,7 +667,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Customer Builder v13.0',
+  builder:'RIGFORGE Driver Name Customer Builder v13.1',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
