@@ -394,13 +394,7 @@ function currentEstimateSetCount(){
  return S.quoteItems.reduce((sum,item)=>sum+setCountFromQty(item.qty),0);
 }
 function price(){
- const sets=setCountFromQty(S.qty);
- const existingSets=currentEstimateSetCount();
- const fullPriceSlots=Math.max(0,1-existingSets);
- const discountedSets=Math.max(0,sets-fullPriceSlots);
- if(sets===1 && existingSets===0){return currentUnitPrice();}
- const effectiveSets=(existingSets+sets>=2)?sets:0;
- return (existingSets==0 && sets>=2)?(currentUnitPrice()-MULTI_DISCOUNT_PER_ADDITIONAL_SET)*sets:(currentUnitPrice()*sets-MULTI_DISCOUNT_PER_ADDITIONAL_SET*discountedSets);
+ return regularPrice()-discountAmount();
 }
 function regularPrice(){return currentUnitPrice()*setCountFromQty(S.qty)}
 function discountAmount(){
@@ -434,15 +428,14 @@ function currentQuoteItem(){const c=CFG[S.size],tm=textMetrics();return {id:'QI-
 function saveQuoteItems(){try{localStorage.setItem('rigforgeDriverNameQuotesV91',JSON.stringify({items:S.quoteItems,lockedName:S.lockedName}))}catch(e){}}
 function loadQuoteItems(){try{const raw=localStorage.getItem('rigforgeDriverNameQuotesV91');if(raw){const p=JSON.parse(raw);S.quoteItems=(p.items||[]).map(it=>({...it,qty:Math.max(PIECES_PER_SET,setCountFromQty(it.qty)*PIECES_PER_SET)}));S.lockedName=p.lockedName||'';if(S.lockedName){S.text=S.lockedName;$('nameInput').value=S.lockedName}}}catch(e){S.quoteItems=[];S.lockedName=''}}
 function recomputeQuoteItems(items){
- let fullPriceSlots=1;
+ const hasMultipleQuotes=items.length>=2;
  return items.map(it=>{
   const unit=UNIT_PRICE[it.layout][it.size];
   const sets=setCountFromQty(it.qty);
-  const fullPriceSets=Math.min(fullPriceSlots,sets);
-  fullPriceSlots-=fullPriceSets;
-  const discountedSets=sets-fullPriceSets;
   const regular=unit*sets;
-  const discount=MULTI_DISCOUNT_PER_ADDITIONAL_SET*discountedSets;
+  const discount=(hasMultipleQuotes || sets>=2)
+   ? MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets
+   : 0;
   return {...it,unitPrice:unit,setCount:sets,regularAmount:regular,discountAmount:discount,amount:regular-discount};
  });
 }
