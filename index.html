@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Customer Builder v13.1</title>
+<title>RIGFORGE Driver Name Customer Builder v13.2.1</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -84,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
-  <div class="version-badge">CUSTOMER · BUILD v13.1</div>
+  <div class="version-badge">CUSTOMER · BUILD v13.2.1</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -507,7 +507,7 @@ async function saveEstimateToSupabase(){
   const payload={
    estimate_no:estimateNo,
    builder_type:'driver-name',
-   builder_version:'12.7',
+   builder_version:'13.2.1',
    items:computedItems.map(item=>({...item,orderMeta})),
    total_price:total,
    status:'saved'
@@ -567,8 +567,8 @@ function update(){
  document.querySelectorAll('#sizeBtns button').forEach(b=>b.classList.toggle('active',b.dataset.size===S.size));
  $('hBtn').classList.toggle('active',S.layout==='horizontal');$('vBtn').classList.toggle('active',S.layout==='vertical');
  $('whiteBtn').classList.toggle('active',S.color==='white');$('blackBtn').classList.toggle('active',S.color==='black');
- $('qty').textContent=qtyLabel(S.qty);$('qtyNote').textContent='1 SET은 2개입니다. 수량은 1 SET씩 증가하며, 첫 1 SET 이후 추가 1 SET마다 해당 기본가에서 1,000원 할인됩니다. 배송비는 3,000원이며 상품금액 50,000원 이상은 무료입니다.';
- $('price').textContent=money(price());$('priceBreakdown').innerHTML=discountAmount()>0?`정상가 <span class="strike">${money(regularPrice())}</span> · 복수구매 할인 <span class="discount-text">-${money(discountAmount())}</span>`:`첫 2개는 기본가 · 추가 2개마다 1,000원 할인`;$('quoteNo').textContent=S.quote||'미생성';
+ $('qty').textContent=qtyLabel(S.qty);$('qtyNote').textContent='1 SET은 2개입니다. 단일 견적은 2 SET부터 전체 SET당 1,000원 할인되며, 다른 형태의 견적을 추가하면 각 견적이 1 SET부터 SET당 1,000원 할인됩니다. 배송비는 3,000원이며 상품금액 50,000원 이상은 무료입니다.';
+ $('price').textContent=money(price());$('priceBreakdown').innerHTML=discountAmount()>0?`정상가 <span class="strike">${money(regularPrice())}</span> · 복수구매 할인 <span class="discount-text">-${money(discountAmount())}</span>`:`단일 견적 1 SET은 할인 없음`;$('quoteNo').textContent=S.quote||'미생성';
 
  const c=CFG[S.size],tm=textMetrics(),limit=maxTextW(),pct=Math.min(100,tm.w/limit*100),over=tm.w>limit;
  $('widthBar').style.width=pct+'%';$('widthBar').style.background=over?'var(--danger)':'var(--ok)';
@@ -660,7 +660,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Customer Builder v13.1',
+  builder:'RIGFORGE Driver Name Customer Builder v13.2.1',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
