@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Customer Builder v12.4</title>
+<title>RIGFORGE Driver Name Customer Builder v12.7</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -84,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
-  <div class="version-badge">CUSTOMER · BUILD v12.4</div>
+  <div class="version-badge">CUSTOMER · BUILD v12.7</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -510,7 +510,7 @@ async function saveEstimateToSupabase(){
   const payload={
    estimate_no:estimateNo,
    builder_type:'driver-name',
-   builder_version:'12.4',
+   builder_version:'12.7',
    items:computedItems.map(item=>({...item,orderMeta})),
    total_price:total,
    status:'saved'
@@ -603,7 +603,7 @@ function render(){
  const scaledGroupW=groupW*sc;
  const scaledGroupH=groupH*sc;
  const ox=(previewW-scaledGroupW)/2;
- const oy=n===1?(previewH-scaledGroupH)/2:padY;
+ const oy=(previewH-scaledGroupH)/2;
  const col=S.color==='white'?'#fff':'#111';
  let items='';
  for(let i=0;i<n;i++){
@@ -663,7 +663,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Customer Builder v12.4',
+  builder:'RIGFORGE Driver Name Customer Builder v12.7',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
