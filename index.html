@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Customer Builder v12.7</title>
+<title>RIGFORGE Driver Name Customer Builder v13.0</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -84,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
-  <div class="version-badge">CUSTOMER · BUILD v12.7</div>
+  <div class="version-badge">CUSTOMER · BUILD v13.0</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -398,13 +398,16 @@ function price(){
  const existingSets=currentEstimateSetCount();
  const fullPriceSlots=Math.max(0,1-existingSets);
  const discountedSets=Math.max(0,sets-fullPriceSlots);
- return currentUnitPrice()*sets-MULTI_DISCOUNT_PER_ADDITIONAL_SET*discountedSets;
+ if(sets===1 && existingSets===0){return currentUnitPrice();}
+ const effectiveSets=(existingSets+sets>=2)?sets:0;
+ return (existingSets==0 && sets>=2)?(currentUnitPrice()-MULTI_DISCOUNT_PER_ADDITIONAL_SET)*sets:(currentUnitPrice()*sets-MULTI_DISCOUNT_PER_ADDITIONAL_SET*discountedSets);
 }
 function regularPrice(){return currentUnitPrice()*setCountFromQty(S.qty)}
 function discountAmount(){
  const sets=setCountFromQty(S.qty);
  const existingSets=currentEstimateSetCount();
  const fullPriceSlots=Math.max(0,1-existingSets);
+ if(existingSets==0 && sets>=2) return MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets;
  return MULTI_DISCOUNT_PER_ADDITIONAL_SET*Math.max(0,sets-fullPriceSlots);
 }
 function optionLabel(layout=S.layout,size=S.size){return `${layout==='horizontal'?'가로형':'세로형'} ${size}`}
@@ -663,7 +666,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Customer Builder v12.7',
+  builder:'RIGFORGE Driver Name Customer Builder v13.0',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
