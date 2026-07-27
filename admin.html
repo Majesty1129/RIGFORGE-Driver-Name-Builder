@@ -184,6 +184,7 @@ const statusLabel=s=>({
  deleted:'삭제'
 }[s]||s);
 const optionLabel=it=>`${it.layout==='horizontal'?'가로형':'세로형'} ${it.size}`;
+const qtyLabel=qty=>`${Math.max(1,Math.ceil(Number(qty||2)/2))} SET (${Math.max(1,Math.ceil(Number(qty||2)/2))*2}개)`;
 
 function flagMarkup(x,y,w,h){
  return `<g transform="translate(${x} ${y}) scale(${w/212.195312} ${h/141.464844})">${FLAG_INNER}</g>`;
@@ -417,7 +418,7 @@ function renderEstimate(row){
   const svg=buildSvg(it);
   return `<div class="item">
    <div class="item-head">
-    <div class="item-title">${i+1}. ${optionLabel(it)} × ${it.qty}</div>
+    <div class="item-title">${i+1}. ${optionLabel(it)} × ${qtyLabel(it.qty)}</div>
     <strong>${money(it.amount)}</strong>
    </div>
    <div class="note">이름: ${esc(it.text)} · 색상: ${String(it.color).toUpperCase()} · 글자 높이: ${it.textH}mm · 저장 폭: ${it.textW}mm</div>
@@ -438,7 +439,7 @@ function renderEstimate(row){
   btn.addEventListener('click',()=>{
    const i=Number(btn.dataset.download);
    const it=items[i];
-   downloadSvg(buildSvg(it),`${row.estimate_no}_${i+1}_${it.layout}_${it.size}.svg`);
+   downloadSvg(buildSvg(it),items.length===1?`${row.estimate_no}.svg`:`${row.estimate_no}_${String(i+1).padStart(2,'0')}.svg`);
   });
  });
 }

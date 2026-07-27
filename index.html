@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Customer Builder v12.2</title>
+<title>RIGFORGE Driver Name Customer Builder v12.4</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -31,12 +31,13 @@ button,input{font:inherit}button{cursor:pointer}
 input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:#fff}
 .height-row{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center}.height-row input[type=range]{padding:0}
 .unit-input{position:relative}.unit-input input{padding-right:34px}.unit-input span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
-.qty{display:flex;gap:9px;align-items:center}.qty button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:#222832;color:#fff;font-size:20px}.qty span{min-width:40px;text-align:center;font-size:18px;font-weight:900}
+.qty{display:flex;gap:9px;align-items:center}.qty button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:#222832;color:#fff;font-size:20px}.qty span{min-width:118px;text-align:center;font-size:17px;font-weight:900}
 .price{font-size:30px;font-weight:900}.actions{display:flex;flex-wrap:wrap;gap:8px}
 .btn.primary{background:var(--accent);color:#111;border:0}.btn.secondary{background:#2a313a}.btn.ghost{background:transparent}
 .preview{min-height:610px;display:flex;flex-direction:column;gap:14px}
 .sheet{background:#eceff2;border-radius:14px;min-height:450px;display:flex;align-items:center;justify-content:center;padding:24px}.sheet.dark{background:#17191d}
 #previewSvg{width:100%;height:430px}
+.preview-qty{text-align:center;background:#222832;border:1px solid var(--line);border-radius:12px;padding:12px 14px}.preview-qty-main{font-size:18px;font-weight:900}.preview-qty-note{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.5}
 .meter{height:10px;background:#252b33;border-radius:999px;overflow:hidden;margin-top:8px}.meter>div{height:100%;width:0;background:var(--ok)}
 .status{font-size:13px;margin-top:7px}.status.bad{color:var(--danger)}.status.good{color:var(--ok)}
 .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.meta div{background:#222832;border-radius:10px;padding:10px}.meta b{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
@@ -83,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
-  <div class="version-badge">CUSTOMER · BUILD v12.2</div>
+  <div class="version-badge">CUSTOMER · BUILD v12.4</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -136,15 +137,9 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
         <div id="qtyNote" class="note" style="margin-top:8px"></div>
       </div>
 
-      <div class="section">
-        <div class="label">폰트 상태</div>
-        <div class="load-row"><span id="fontDot" class="font-dot"></span><span id="fontLoadStatus" class="status">Nulshock Bold 로딩 중</span></div>
-        <div class="note">업로드한 Nulshock Bold 파일을 사용합니다.</div>
-      </div>
-
       <div class="section"><div class="label">현재 선택 금액</div><div id="price" class="price">3,900원</div><div id="priceBreakdown" class="note" style="margin-top:7px"></div></div>
       <div class="actions"><button class="btn primary" id="addQuoteBtn">견적 추가</button><button class="btn secondary" id="newQuoteBtn">새 이름으로 시작</button></div>
-<div class="quote-panel"><div class="quote-head"><h3>구매 옵션</h3><span class="quote-count" id="quoteCount">0개</span></div><div class="quote-list" id="quoteList"><div class="quote-empty">추가된 옵션이 없습니다.</div></div><div id="discountPolicyGuide" class="note" style="margin-bottom:10px">총 구매수량 2개 이상이면 모든 품목이 개당 1,000원 할인됩니다.</div>
+<div class="quote-panel"><div class="quote-head"><h3>구매 옵션</h3><span class="quote-count" id="quoteCount">0개</span></div><div class="quote-list" id="quoteList"><div class="quote-empty">추가된 옵션이 없습니다.</div></div><div id="discountPolicyGuide" class="note" style="margin-bottom:10px">기본 1 SET(2개)이며, 추가 1 SET마다 해당 기본가에서 1,000원 할인됩니다.</div>
 <div class="quote-total"><span>정상가</span><strong id="regularGrandTotal">0원</strong></div>
 <div class="quote-total"><span>복수구매 할인</span><strong id="discountGrandTotal">0원</strong></div>
 <div class="quote-total"><span>상품금액</span><strong id="productGrandTotal">0원</strong></div>
@@ -156,6 +151,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 
     <section class="card preview">
       <div class="sheet dark" id="sheet"><svg id="previewSvg" viewBox="0 0 780 430"></svg></div>
+      <div class="preview-qty"><div id="previewQtyMain" class="preview-qty-main"></div><div id="previewQtyNote" class="preview-qty-note"></div></div>
       <div class="meta">
         <div><b>견적번호</b><span id="quoteNo">미생성</span></div>
         <div><b>구성</b><span id="layoutMeta"></span></div>
@@ -194,11 +190,13 @@ const SUPABASE_URL='https://hbabjwicpilqoqbfdqlz.supabase.co';
 const SUPABASE_KEY='sb_publishable_GW3eX7jxoaLWrCVB6Acsbg_QwE5jG2R';
 const SMARTSTORE_URL='https://smartstore.naver.com/shoplixmarket/products/13682188335';
 const UNIT_PRICE={horizontal:{S:3900,M:4900,L:6900},vertical:{S:4400,M:5400,L:7400}};
-const MULTI_DISCOUNT_PER_ITEM=1000;
+const MULTI_DISCOUNT_PER_ADDITIONAL_SET=1000;
+const PIECES_PER_SET=2;
+const FORMSPREE_ENDPOINT='https://formspree.io/f/xaqrjevk';
 const SHIPPING_FEE=3000;
 const FREE_SHIPPING_THRESHOLD=50000;
 const CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const S={layout:'horizontal',size:'S',color:'white',qty:1,text:'',textH:15,quote:'',quoteItems:[],lockedName:'',saving:false};
+const S={layout:'horizontal',size:'S',color:'white',qty:2,text:'',textH:15,quote:'',quoteItems:[],lockedName:'',saving:false};
 const $=id=>document.getElementById(id);
 const money=n=>n.toLocaleString('ko-KR')+'원';
 
@@ -359,7 +357,9 @@ function renderEstimateHistory(){
  });
 }
 
-function baseQty(){return 1}
+function baseQty(){return PIECES_PER_SET}
+function setCountFromQty(qty){return Math.max(1,Math.ceil(Number(qty||PIECES_PER_SET)/PIECES_PER_SET))}
+function qtyLabel(qty){const sets=setCountFromQty(qty),pieces=sets*PIECES_PER_SET;return `${sets} SET (${pieces}개)`}
 function quoteNo(){const d=new Date(),y=String(d.getFullYear()).slice(-2),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');let tail='';for(let i=0;i<4;i++)tail+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return `DN-${y}${m}${day}-${tail}`;}
 function textMetrics(){
  const canvas=textMetrics.canvas||(textMetrics.canvas=document.createElement('canvas'));
@@ -390,24 +390,26 @@ function currentUnitPrice(){return UNIT_PRICE[S.layout][S.size]}
 function currentEstimateQty(){
  return S.quoteItems.reduce((sum,item)=>sum+Number(item.qty||0),0);
 }
-function previewTotalQty(){
- const existingQty=currentEstimateQty();
- const same=S.quoteItems.find(x=>x.layout===S.layout&&x.size===S.size&&x.color===S.color&&x.textH===S.textH);
- return existingQty+S.qty;
+function currentEstimateSetCount(){
+ return S.quoteItems.reduce((sum,item)=>sum+setCountFromQty(item.qty),0);
 }
 function price(){
- const unit=currentUnitPrice();
- const discount=previewTotalQty()>=2?MULTI_DISCOUNT_PER_ITEM:0;
- return (unit-discount)*S.qty;
+ const sets=setCountFromQty(S.qty);
+ const existingSets=currentEstimateSetCount();
+ const fullPriceSlots=Math.max(0,1-existingSets);
+ const discountedSets=Math.max(0,sets-fullPriceSlots);
+ return currentUnitPrice()*sets-MULTI_DISCOUNT_PER_ADDITIONAL_SET*discountedSets;
 }
-function regularPrice(){return currentUnitPrice()*S.qty}
+function regularPrice(){return currentUnitPrice()*setCountFromQty(S.qty)}
 function discountAmount(){
- return previewTotalQty()>=2?MULTI_DISCOUNT_PER_ITEM*S.qty:0;
+ const sets=setCountFromQty(S.qty);
+ const existingSets=currentEstimateSetCount();
+ const fullPriceSlots=Math.max(0,1-existingSets);
+ return MULTI_DISCOUNT_PER_ADDITIONAL_SET*Math.max(0,sets-fullPriceSlots);
 }
 function optionLabel(layout=S.layout,size=S.size){return `${layout==='horizontal'?'가로형':'세로형'} ${size}`}
 function productSubtotal(){
- const applyGlobalDiscount=currentEstimateQty()>=2;
- return S.quoteItems.map(item=>recomputeItem(item,applyGlobalDiscount))
+ return recomputeQuoteItems(S.quoteItems)
   .reduce((sum,item)=>sum+Number(item.amount||0),0);
 }
 function shippingFeeFor(amount=productSubtotal()){return amount>=FREE_SHIPPING_THRESHOLD?0:SHIPPING_FEE}
@@ -426,16 +428,25 @@ function setHeightRules(reset=false){
 
 function currentQuoteItem(){const c=CFG[S.size],tm=textMetrics();return {id:'QI-'+Date.now()+'-'+Math.floor(Math.random()*1000),layout:S.layout,size:S.size,color:S.color,qty:S.qty,text:S.text.trim(),textH:S.textH,textW:Number(tm.w.toFixed(1)),flagW:c.fw,flagH:c.fh,unitPrice:currentUnitPrice(),regularAmount:regularPrice(),discountAmount:discountAmount(),amount:price()};}
 function saveQuoteItems(){try{localStorage.setItem('rigforgeDriverNameQuotesV91',JSON.stringify({items:S.quoteItems,lockedName:S.lockedName}))}catch(e){}}
-function loadQuoteItems(){try{const raw=localStorage.getItem('rigforgeDriverNameQuotesV91');if(raw){const p=JSON.parse(raw);S.quoteItems=p.items||[];S.lockedName=p.lockedName||'';if(S.lockedName){S.text=S.lockedName;$('nameInput').value=S.lockedName}}}catch(e){S.quoteItems=[];S.lockedName=''}}
-function recomputeItem(it,applyGlobalDiscount=currentEstimateQty()>=2){
- const unit=UNIT_PRICE[it.layout][it.size];
- const regular=unit*it.qty;
- const discount=applyGlobalDiscount?MULTI_DISCOUNT_PER_ITEM*it.qty:0;
- return {...it,unitPrice:unit,regularAmount:regular,discountAmount:discount,amount:regular-discount};
+function loadQuoteItems(){try{const raw=localStorage.getItem('rigforgeDriverNameQuotesV91');if(raw){const p=JSON.parse(raw);S.quoteItems=(p.items||[]).map(it=>({...it,qty:Math.max(PIECES_PER_SET,setCountFromQty(it.qty)*PIECES_PER_SET)}));S.lockedName=p.lockedName||'';if(S.lockedName){S.text=S.lockedName;$('nameInput').value=S.lockedName}}}catch(e){S.quoteItems=[];S.lockedName=''}}
+function recomputeQuoteItems(items){
+ let fullPriceSlots=1;
+ return items.map(it=>{
+  const unit=UNIT_PRICE[it.layout][it.size];
+  const sets=setCountFromQty(it.qty);
+  const fullPriceSets=Math.min(fullPriceSlots,sets);
+  fullPriceSlots-=fullPriceSets;
+  const discountedSets=sets-fullPriceSets;
+  const regular=unit*sets;
+  const discount=MULTI_DISCOUNT_PER_ADDITIONAL_SET*discountedSets;
+  return {...it,unitPrice:unit,setCount:sets,regularAmount:regular,discountAmount:discount,amount:regular-discount};
+ });
+}
+function recomputeItem(it){
+ return recomputeQuoteItems([it])[0];
 }
 function renderQuoteList(){
- const applyGlobalDiscount=currentEstimateQty()>=2;
- S.quoteItems=S.quoteItems.map(item=>recomputeItem(item,applyGlobalDiscount));
+ S.quoteItems=recomputeQuoteItems(S.quoteItems);
  const box=$('quoteList');
  const totalQty=S.quoteItems.reduce((a,b)=>a+Number(b.qty||0),0);
  $('quoteCount').textContent=`${S.quoteItems.length}개 옵션 · 총 ${totalQty}개`;
@@ -460,19 +471,19 @@ function renderQuoteList(){
   box.innerHTML='<div class="quote-empty">추가된 옵션이 없습니다.</div>';
   return;
  }
- box.innerHTML=S.quoteItems.map((it,i)=>`<div class="quote-item"><div class="quote-item-top"><div><div class="quote-item-title">${i+1}. ${optionLabel(it.layout,it.size)}</div><div class="quote-item-sub">이름 ${esc(it.text)} · ${it.color.toUpperCase()}<br>실제 글자 높이 ${it.textH}mm · 글자 폭 ${Number(it.textW).toFixed(1)}mm<br><span class="strike">${money(it.regularAmount)}</span>${it.discountAmount?` <span class="discount-text">-${money(it.discountAmount)}</span>`:''}</div></div><div class="quote-item-price">${money(it.amount)}</div></div><div class="quote-item-actions"><button data-minus-item="${it.id}">−</button><button disabled>${it.qty}개</button><button data-plus-item="${it.id}">＋</button><button data-remove-item="${it.id}">삭제</button></div></div>`).join('');
+ box.innerHTML=S.quoteItems.map((it,i)=>`<div class="quote-item"><div class="quote-item-top"><div><div class="quote-item-title">${i+1}. ${optionLabel(it.layout,it.size)}</div><div class="quote-item-sub">이름 ${esc(it.text)} · ${it.color.toUpperCase()}<br>실제 글자 높이 ${it.textH}mm · 글자 폭 ${Number(it.textW).toFixed(1)}mm<br><span class="strike">${money(it.regularAmount)}</span>${it.discountAmount?` <span class="discount-text">-${money(it.discountAmount)}</span>`:''}</div></div><div class="quote-item-price">${money(it.amount)}</div></div><div class="quote-item-actions"><button data-minus-item="${it.id}">−</button><button disabled>${qtyLabel(it.qty)}</button><button data-plus-item="${it.id}">＋</button><button data-remove-item="${it.id}">삭제</button></div></div>`).join('');
  box.querySelectorAll('[data-minus-item]').forEach(b=>b.onclick=()=>{
   const i=S.quoteItems.findIndex(x=>x.id===b.dataset.minusItem);
   if(i<0)return;
-  if(S.quoteItems[i].qty<=1)S.quoteItems.splice(i,1);
-  else S.quoteItems[i].qty--;
+  if(S.quoteItems[i].qty<=PIECES_PER_SET)S.quoteItems.splice(i,1);
+  else S.quoteItems[i].qty-=PIECES_PER_SET;
   if(!S.quoteItems.length)S.lockedName='';
   saveQuoteItems();update();
  });
  box.querySelectorAll('[data-plus-item]').forEach(b=>b.onclick=()=>{
   const i=S.quoteItems.findIndex(x=>x.id===b.dataset.plusItem);
   if(i<0)return;
-  S.quoteItems[i].qty=Math.min(20,S.quoteItems[i].qty+1);
+  S.quoteItems[i].qty=Math.min(40,S.quoteItems[i].qty+PIECES_PER_SET);
   saveQuoteItems();update();
  });
  box.querySelectorAll('[data-remove-item]').forEach(b=>b.onclick=()=>{
@@ -485,8 +496,7 @@ async function saveEstimateToSupabase(){
  if(!S.quoteItems.length)throw new Error('추가된 옵션이 없습니다.');
  for(let attempt=0;attempt<5;attempt++){
   const estimateNo=quoteNo();
-  const applyGlobalDiscount=currentEstimateQty()>=2;
-  const computedItems=S.quoteItems.map(item=>recomputeItem(item,applyGlobalDiscount));
+  const computedItems=recomputeQuoteItems(S.quoteItems);
   const subtotal=computedItems.reduce((a,b)=>a+Number(b.amount||0),0);
   const shipping=shippingFeeFor(subtotal);
   const total=subtotal+shipping;
@@ -495,12 +505,12 @@ async function saveEstimateToSupabase(){
    shippingFee:shipping,
    freeShippingThreshold:FREE_SHIPPING_THRESHOLD,
    finalPayment:total,
-   shippingPolicy:'3000_KRW_FREE_OVER_50000',discountPolicy:'TOTAL_QTY_2_PLUS_ALL_ITEMS_1000_OFF'
+   shippingPolicy:'3000_KRW_FREE_OVER_50000',discountPolicy:'BASE_2_PIECES_FULL_PRICE_EACH_ADDITIONAL_2_PIECES_1000_OFF'
   };
   const payload={
    estimate_no:estimateNo,
    builder_type:'driver-name',
-   builder_version:'12.2',
+   builder_version:'12.4',
    items:computedItems.map(item=>({...item,orderMeta})),
    total_price:total,
    status:'saved'
@@ -521,11 +531,34 @@ async function saveEstimateToSupabase(){
  }
  throw new Error('견적번호 생성에 실패했습니다. 다시 시도해 주세요.');
 }
+async function sendEstimateEmail(r){
+ const items=(r.payload&&Array.isArray(r.payload.items))?r.payload.items:[];
+ const detail=items.map((it,i)=>{
+  const layout=it.layout==='horizontal'?'가로형':'세로형';
+  return `${i+1}. ${layout} ${it.size} / ${String(it.color||'').toUpperCase()} / ${qtyLabel(it.qty)} / 글자높이 ${it.textH}mm / ${money(Number(it.amount||0))}`;
+ }).join('\n');
+ const body={
+  _subject:`[RIGFORGE] 드라이버 네임 견적 ${r.estimateNo}`,
+  견적번호:r.estimateNo,
+  이름:S.lockedName||S.text||'',
+  옵션상세:detail||'-',
+  상품금액:money(r.subtotal),
+  배송비:r.shipping===0?'무료':money(r.shipping),
+  최종결제금액:money(r.total),
+  SVG안내:'SVG 파일은 관리자 페이지에서 견적번호로 조회 후 다운로드할 수 있습니다.'
+ };
+ const res=await fetch(FORMSPREE_ENDPOINT,{
+  method:'POST',
+  headers:{'Content-Type':'application/json','Accept':'application/json'},
+  body:JSON.stringify(body)
+ });
+ if(!res.ok)throw new Error(`메일 전송 실패 (${res.status})`);
+}
 function showSavedModal(r){
  saveEstimateHistory(r);
  S.quote=r.estimateNo;
  $('savedQuoteNo').textContent=r.estimateNo;
- const lines=S.quoteItems.map(it=>`${optionLabel(it.layout,it.size)} × ${it.qty}`).join('<br>');
+ const lines=S.quoteItems.map(it=>`${optionLabel(it.layout,it.size)} × ${qtyLabel(it.qty)}`).join('<br>');
  $('savedOrderSummary').innerHTML=
   `이름: <b>${esc(S.lockedName)}</b><br>${lines}<br><br>`+
   `상품금액: <b>${money(r.subtotal)}</b><br>`+
@@ -537,8 +570,8 @@ function update(){
  document.querySelectorAll('#sizeBtns button').forEach(b=>b.classList.toggle('active',b.dataset.size===S.size));
  $('hBtn').classList.toggle('active',S.layout==='horizontal');$('vBtn').classList.toggle('active',S.layout==='vertical');
  $('whiteBtn').classList.toggle('active',S.color==='white');$('blackBtn').classList.toggle('active',S.color==='black');
- $('qty').textContent=S.qty;$('qtyNote').textContent='모든 옵션은 1개부터 구매 가능하며, 같은 이름의 총 구매수량이 2개 이상이면 모든 품목이 개당 1,000원 할인됩니다. 배송비는 3,000원이며 상품금액 50,000원 이상은 무료입니다.';
- $('price').textContent=money(price());$('priceBreakdown').innerHTML=S.qty>=2?`정상가 <span class="strike">${money(regularPrice())}</span> · 복수구매 할인 <span class="discount-text">-${money(discountAmount())}</span>`:`현재 견적 총 수량이 2개 이상이면 모든 품목이 개당 1,000원 할인`;$('quoteNo').textContent=S.quote||'미생성';
+ $('qty').textContent=qtyLabel(S.qty);$('qtyNote').textContent='1 SET은 2개입니다. 수량은 1 SET씩 증가하며, 첫 1 SET 이후 추가 1 SET마다 해당 기본가에서 1,000원 할인됩니다. 배송비는 3,000원이며 상품금액 50,000원 이상은 무료입니다.';
+ $('price').textContent=money(price());$('priceBreakdown').innerHTML=discountAmount()>0?`정상가 <span class="strike">${money(regularPrice())}</span> · 복수구매 할인 <span class="discount-text">-${money(discountAmount())}</span>`:`첫 2개는 기본가 · 추가 2개마다 1,000원 할인`;$('quoteNo').textContent=S.quote||'미생성';
 
  const c=CFG[S.size],tm=textMetrics(),limit=maxTextW(),pct=Math.min(100,tm.w/limit*100),over=tm.w>limit;
  $('widthBar').style.width=pct+'%';$('widthBar').style.background=over?'var(--danger)':'var(--ok)';
@@ -546,9 +579,11 @@ function update(){
  $('widthStatus').textContent=`글자 폭 ${tm.w.toFixed(1)}mm / 최대 ${limit}mm`+(over?' — 이름 또는 글자 높이를 줄여 주세요.':' — 제작 가능');
  $('nameInput').disabled=!!S.lockedName;
  $('addQuoteBtn').disabled=!S.lockedName && !S.text.trim();$('nameLockNote').innerHTML=S.lockedName?`🔒 이 견적의 이름은 <strong>${esc(S.lockedName)}</strong>으로 잠겼습니다.`:'첫 옵션을 추가하면 이름이 잠깁니다.';$('layoutMeta').textContent=`${S.layout==='horizontal'?'가로형':'세로형'} · ${S.size}`;
- $('flagMeta').textContent=`${c.fw}×${c.fh}mm × ${S.qty}`;
+ $('flagMeta').textContent=`${c.fw}×${c.fh}mm`;
+ $('previewQtyMain').textContent=qtyLabel(S.qty);
+ $('previewQtyNote').textContent=`※ 시안은 1 SET(2개)만 표시됩니다. 실제 제작은 ${qtyLabel(S.qty)}입니다.`;
  $('colorMeta').textContent=S.color.toUpperCase();
- $('summary').innerHTML=`${S.layout==='horizontal'?'가로형':'세로형'} ${S.size} · ${S.qty}개<br>폰트: Nulshock Bold<br>이름: ${esc(S.text)}<br>실제 글자 높이: ${S.textH}mm<br>글자 폭: ${tm.w.toFixed(1)} / ${limit}mm<br>합계: ${money(price())}`;
+ $('summary').innerHTML=`${S.layout==='horizontal'?'가로형':'세로형'} ${S.size} · ${qtyLabel(S.qty)}<br>폰트: Nulshock Bold<br>이름: ${esc(S.text)}<br>실제 글자 높이: ${S.textH}mm<br>글자 폭: ${tm.w.toFixed(1)} / ${limit}mm<br>합계: ${money(price())}`;
  render();
  renderQuoteList();
 }
@@ -559,7 +594,7 @@ function render(){
  const svg=$('previewSvg'),c=CFG[S.size],tm=textMetrics();
  const unitW=S.layout==='horizontal'?c.fw+GAP+tm.w:Math.max(c.fw,tm.w);
  const unitH=S.layout==='horizontal'?Math.max(c.fh,tm.h):c.fh+GAP+tm.h;
- const n=Math.max(1,S.qty);
+ const n=PIECES_PER_SET;
  const previewW=780,previewH=430,padX=34,padY=28;
  const rowGapMm=Math.max(10,unitH*.22);
  const groupW=unitW;
@@ -597,7 +632,7 @@ function render(){
 }
 function quoteText(){
  const c=CFG[S.size],tm=textMetrics();
- return [`견적번호: ${S.quote||'미생성'}`,`RIGFORGE Driver Name Builder`,`배치: ${S.layout==='horizontal'?'가로형':'세로형'}`,`크기: ${S.size}`,`폰트: Nulshock Bold`,`이름: ${S.text}`,`태극기: ${c.fw}×${c.fh}mm`,`실제 글자 높이: ${S.textH}mm`,`글자 폭: ${tm.w.toFixed(1)}mm`,`색상: ${S.color.toUpperCase()}`,`수량: ${S.qty}`,`합계: ${money(price())}`].join('\n');
+ return [`견적번호: ${S.quote||'미생성'}`,`RIGFORGE Driver Name Builder`,`배치: ${S.layout==='horizontal'?'가로형':'세로형'}`,`크기: ${S.size}`,`폰트: Nulshock Bold`,`이름: ${S.text}`,`태극기: ${c.fw}×${c.fh}mm`,`실제 글자 높이: ${S.textH}mm`,`글자 폭: ${tm.w.toFixed(1)}mm`,`색상: ${S.color.toUpperCase()}`,`수량: ${qtyLabel(S.qty)}`,`합계: ${money(price())}`].join('\n');
 }
 function buildProductionSvg(){
  const c=CFG[S.size],tm=textMetrics();
@@ -628,7 +663,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Customer Builder v12.2',
+  builder:'RIGFORGE Driver Name Customer Builder v12.4',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
@@ -640,8 +675,8 @@ function buildProductionSvg(){
  }));
  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}"><metadata>${meta}</metadata><defs><style>@font-face{font-family:Nulshock;src:url("${FONT_DATA}") format("opentype");font-weight:700}text{font-family:Nulshock;font-weight:700}</style></defs>${items}</svg>`;
 }
-$('hBtn').onclick=()=>{S.layout='horizontal';S.qty=Math.max(S.qty,2);update()};
-$('vBtn').onclick=()=>{S.layout='vertical';if(S.qty===2)S.qty=1;update()};
+$('hBtn').onclick=()=>{S.layout='horizontal';S.qty=Math.max(S.qty,PIECES_PER_SET);update()};
+$('vBtn').onclick=()=>{S.layout='vertical';S.qty=Math.max(S.qty,PIECES_PER_SET);update()};
 document.querySelectorAll('#sizeBtns button').forEach(b=>b.onclick=()=>{S.size=b.dataset.size;setHeightRules(true);update()});
 
 $('textHeightRange').oninput=e=>{S.textH=Number(e.target.value);$('textHeightInput').value=S.textH;update()};
@@ -656,8 +691,8 @@ $('nameInput').oninput=e=>{
  e.target.value=S.text;
  update();
 };
-$('minus').onclick=()=>{S.qty=Math.max(baseQty(),S.qty-1);update()};$('plus').onclick=()=>{S.qty=Math.min(20,S.qty+1);update()};
-$('addQuoteBtn').onclick=()=>{if(!valid())return alert('이름과 글자 폭 제한을 확인해 주세요.');const name=S.text.trim();if(!name)return alert('이름을 입력해 주세요.');if(S.lockedName&&name!==S.lockedName)return alert(`현재 견적의 이름은 "${S.lockedName}"입니다.\n다른 이름은 새 견적으로 시작해 주세요.`);if(!S.lockedName)S.lockedName=name;S.text=S.lockedName;$('nameInput').value=S.lockedName;const same=S.quoteItems.find(x=>x.layout===S.layout&&x.size===S.size&&x.color===S.color&&x.textH===S.textH);if(same)same.qty=Math.min(20,same.qty+S.qty);else S.quoteItems.push(currentQuoteItem());S.qty=1;saveQuoteItems();update();alert('구매 옵션에 추가했습니다.');};
+$('minus').onclick=()=>{S.qty=Math.max(baseQty(),S.qty-PIECES_PER_SET);update()};$('plus').onclick=()=>{S.qty=Math.min(40,S.qty+PIECES_PER_SET);update()};
+$('addQuoteBtn').onclick=()=>{if(!valid())return alert('이름과 글자 폭 제한을 확인해 주세요.');const name=S.text.trim();if(!name)return alert('이름을 입력해 주세요.');if(S.lockedName&&name!==S.lockedName)return alert(`현재 견적의 이름은 "${S.lockedName}"입니다.\n다른 이름은 새 견적으로 시작해 주세요.`);if(!S.lockedName)S.lockedName=name;S.text=S.lockedName;$('nameInput').value=S.lockedName;const same=S.quoteItems.find(x=>x.layout===S.layout&&x.size===S.size&&x.color===S.color&&x.textH===S.textH);if(same)same.qty=Math.min(40,same.qty+S.qty);else S.quoteItems.push(currentQuoteItem());S.qty=PIECES_PER_SET;saveQuoteItems();update();alert('구매 옵션에 추가했습니다.');};
 $('newQuoteBtn').onclick=()=>{if(S.quoteItems.length&&!confirm('현재 견적을 모두 비우고 새 이름으로 시작할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';S.text='';$('nameInput').value='';try{localStorage.removeItem('rigforgeDriverNameQuotesV91')}catch(e){}update();$('nameInput').focus()};
 
 $('clearHistoryBtn').onclick=()=>{
@@ -667,7 +702,7 @@ $('clearHistoryBtn').onclick=()=>{
  renderEstimateHistory();
 };
 
-$('saveOrderBtn').onclick=async()=>{if(S.saving)return;if(!S.quoteItems.length)return alert('먼저 구매 옵션을 추가해 주세요.');S.saving=true;$('saveOrderBtn').disabled=true;$('saveStatus').textContent='견적을 저장하고 있습니다...';try{const r=await saveEstimateToSupabase();$('saveStatus').textContent=`저장 완료: ${r.estimateNo}`;try{await navigator.clipboard.writeText(r.estimateNo)}catch(e){}showSavedModal(r)}catch(e){console.error(e);$('saveStatus').textContent='저장에 실패했습니다.';alert('견적 저장에 실패했습니다.\n'+e.message)}finally{S.saving=false;$('saveOrderBtn').disabled=false}};
+$('saveOrderBtn').onclick=async()=>{if(S.saving)return;if(!S.quoteItems.length)return alert('먼저 구매 옵션을 추가해 주세요.');S.saving=true;$('saveOrderBtn').disabled=true;$('saveStatus').textContent='견적을 저장하고 있습니다...';try{const r=await saveEstimateToSupabase();let emailSent=true;try{await sendEstimateEmail(r)}catch(mailError){emailSent=false;console.warn(mailError)}$('saveStatus').textContent=emailSent?`저장 및 메일 전송 완료: ${r.estimateNo}`:`저장 완료: ${r.estimateNo} (메일 전송 실패)`;try{await navigator.clipboard.writeText(r.estimateNo)}catch(e){}showSavedModal(r)}catch(e){console.error(e);$('saveStatus').textContent='저장에 실패했습니다.';alert('견적 저장에 실패했습니다.\n'+e.message)}finally{S.saving=false;$('saveOrderBtn').disabled=false}};
 const copySavedQuoteBtn=$('copySavedQuoteBtn');
 const goStoreBtn=$('goStoreBtn');
 const closeSaveModalBtn=$('closeSaveModalBtn');
@@ -697,8 +732,8 @@ $('saveModal').addEventListener('click',e=>{
  if(e.target===$('saveModal'))$('saveModal').classList.remove('show');
 });
 $('clearQuotesBtn').onclick=()=>{if(!S.quoteItems.length)return;if(!confirm('추가한 구매 옵션을 모두 삭제할까요?'))return;S.quoteItems=[];S.lockedName='';S.quote='';saveQuoteItems();update()};
-$('minus').onclick=()=>{S.qty=Math.max(1,S.qty-1);update()};$('plus').onclick=()=>{S.qty=Math.min(20,S.qty+1);update()};
-document.fonts.load('700 20px Nulshock').then(()=>{$('fontDot').className='font-dot ok';$('fontLoadStatus').textContent='Nulshock Bold 로딩 완료';update()}).catch(()=>{$('fontDot').className='font-dot bad';$('fontLoadStatus').textContent='폰트 파일을 확인해 주세요';update()});
+$('minus').onclick=()=>{S.qty=Math.max(PIECES_PER_SET,S.qty-PIECES_PER_SET);update()};$('plus').onclick=()=>{S.qty=Math.min(40,S.qty+PIECES_PER_SET);update()};
+document.fonts.load('700 20px Nulshock').then(()=>update()).catch(()=>update());
 window.addEventListener('storage',e=>{if(e.key===HISTORY_KEY)renderEstimateHistory();});
 loadQuoteItems();setHeightRules(true);renderEstimateHistory();
 update();renderQuoteList();
