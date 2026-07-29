@@ -1,4 +1,4 @@
-RIGFORGE Driver Name System v13.2.1
+RIGFORGE Driver Name System v13.2.2
 
 핵심 변경
 - [바로 구매하기] 클릭 시 스마트스토어 상품 페이지만 새 탭으로 열림
@@ -9,9 +9,9 @@ RIGFORGE Driver Name System v13.2.1
 - 기존 내 견적 내역 / 관리자 / Supabase 기능 유지
 
 버전 표시
-- 고객 페이지: CUSTOMER · BUILD v13.2.1
-- 관리자 페이지: ADMIN · BUILD v13.2.1
-- Supabase 저장값 builder_version: 13.2.1
+- 고객 페이지: CUSTOMER · BUILD v13.2.2
+- 관리자 페이지: ADMIN · BUILD v13.2.2
+- Supabase 저장값 builder_version: 13.2.2
 
 적용
 1. Driver Name Builder GitHub 저장소에 index.html과 admin.html을 함께 교체
@@ -40,7 +40,7 @@ RIGFORGE Driver Name System v13.2.1
 - 화면 우측 상단, 문서 제목, 저장 데이터 및 SVG 메타데이터의 빌드 버전을 v12.7로 통일했습니다.
 
 
-[v13.2.1 변경사항]
+[v13.2.2 변경사항]
 - 단일 견적은 2 SET부터 전체 SET당 1,000원 할인됩니다.
 - 견적이 2개 이상이면 각 견적이 1 SET부터 SET당 1,000원 할인됩니다.
-- 고객/관리자 화면, 저장 데이터, SVG 메타데이터의 빌드 버전을 v13.2.1로 통일했습니다.
+- 고객/관리자 화면, 저장 데이터, SVG 메타데이터의 빌드 버전을 v13.2.2로 통일했습니다.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIGFORGE Driver Name Customer Builder v13.2.1</title>
+<title>RIGFORGE Driver Name Customer Builder v13.2.2</title>
 <style>
 @font-face{
   font-family:"Nulshock";
@@ -84,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);ba
 <body>
 <div class="wrap">
   <div class="brand">RIGFORGE GARAGE · CUSTOMER BUILDER</div>
-  <div class="version-badge">CUSTOMER · BUILD v13.2.1</div>
+  <div class="version-badge">CUSTOMER · BUILD v13.2.2</div>
   <h1>Driver Name Builder</h1>
   <div class="sub">태극기 PVC 스티커 + Nulshock Bold 커팅 이름 데칼</div>
 
@@ -399,8 +399,10 @@ function price(){
 function regularPrice(){return currentUnitPrice()*setCountFromQty(S.qty)}
 function discountAmount(){
  const sets=setCountFromQty(S.qty);
- const hasOther=currentEstimateSetCount()>0;
- if(hasOther){
+ // 현재 편집 중인 옵션은 제외하고, 구매 옵션에 실제로 2개 이상의 견적이
+ // 추가된 뒤에만 각 견적의 1 SET 할인 규칙을 적용한다.
+ const hasMultipleQuotes=S.quoteItems.length>=2;
+ if(hasMultipleQuotes){
    return MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets;
  }
  return sets>=2 ? MULTI_DISCOUNT_PER_ADDITIONAL_SET*sets : 0;
@@ -507,7 +509,7 @@ async function saveEstimateToSupabase(){
   const payload={
    estimate_no:estimateNo,
    builder_type:'driver-name',
-   builder_version:'13.2.1',
+   builder_version:'13.2.2',
    items:computedItems.map(item=>({...item,orderMeta})),
    total_price:total,
    status:'saved'
@@ -660,7 +662,7 @@ function buildProductionSvg(){
    items+=`<text x="${tx}" y="${baselineY}" fill="${col}" font-family="Nulshock" font-weight="700" font-size="${tm.fontSizeMm}" text-anchor="${anchor}">${esc(S.text)}</text>`;
  }
  const meta=esc(JSON.stringify({
-  builder:'RIGFORGE Driver Name Customer Builder v13.2.1',
+  builder:'RIGFORGE Driver Name Customer Builder v13.2.2',
   font:'Nulshock Bold',
   fontSizing:'actual visible glyph bounding box',
   flag:'uploaded original AI vector',
